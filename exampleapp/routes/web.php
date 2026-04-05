@@ -115,6 +115,9 @@ Route::middleware(['auth'])->group(function () {
         
         // Clearance Management
         Route::get('/clearances', [App\Http\Controllers\Staff\ClearanceController::class, 'index'])->name('clearances.index');
+        Route::get('/clearances/create', [App\Http\Controllers\Staff\ClearanceController::class, 'create'])->name('clearances.create');
+        Route::post('/clearances', [App\Http\Controllers\Staff\ClearanceController::class, 'store'])->name('clearances.store');
+        Route::post('/clearances/{clearance}/checklist/{item}', [App\Http\Controllers\Staff\ClearanceController::class, 'updateChecklistItem'])->name('clearances.checklist.update');
         Route::post('/clearances/{clearance}/approve', [App\Http\Controllers\Staff\ClearanceController::class, 'approve'])->name('clearances.approve');
         Route::post('/clearances/{clearance}/reject', [App\Http\Controllers\Staff\ClearanceController::class, 'reject'])->name('clearances.reject');
         Route::post('/clearances/bulk-approve', [App\Http\Controllers\Staff\ClearanceController::class, 'bulkApprove'])->name('clearances.bulk-approve');

@@ -87,6 +87,26 @@
                         @enderror
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="office_role" class="form-label">Office Role <span class="text-danger">*</span></label>
+                        <select class="form-control @error('office_role') is-invalid @enderror"
+                                id="office_role"
+                                name="office_role"
+                                required>
+                            <option value="">Select Office Role</option>
+                            @foreach($officeRoles as $roleKey => $roleLabel)
+                                <option value="{{ $roleKey }}" {{ old('office_role', $user->office_role) === $roleKey ? 'selected' : '' }}>
+                                    {{ $roleLabel }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('office_role')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <div class="mb-3">

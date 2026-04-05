@@ -42,6 +42,7 @@
                         <th>Email</th>
                         <th>College</th>
                         <th>Department</th>
+                        <th>Office Role</th>
                         <th>Registered</th>
                         <th>Actions</th>
                     </tr>
@@ -54,6 +55,7 @@
                         <td>{{ $member->email }}</td>
                         <td>{{ $member->college->name ?? 'N/A' }}</td>
                         <td>{{ $member->department->name ?? 'N/A' }}</td>
+                        <td>{{ $member->office_role_label ?? 'Not set' }}</td>
                         <td>{{ $member->created_at->format('M d, Y') }}</td>
                         <td>
                             <a href="{{ route('admin.staff.edit', $member) }}" 
@@ -73,7 +75,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center">No staff found.</td>
+                        <td colspan="8" class="text-center">No staff found.</td>
                     </tr>
                     @endforelse
                 </tbody>

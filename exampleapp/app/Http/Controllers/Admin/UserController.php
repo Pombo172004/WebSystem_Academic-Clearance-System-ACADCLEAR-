@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -153,7 +154,9 @@ class UserController extends Controller
     public function createStaff()
     {
         $colleges = College::with('departments')->get();
-        return view('admin.users.staff.create', compact('colleges'));
+        $officeRoles = User::officeRoles();
+
+        return view('admin.users.staff.create', compact('colleges', 'officeRoles'));
     }
 
     /**
@@ -165,7 +168,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'college_id' => 'required|exists:colleges,id',
-            'department_id' => 'required|exists:departments,id'
+            'department_id' => 'required|exists:departments,id',
+            'office_role' => ['required', Rule::in(array_keys(User::officeRoles()))],
         ]);
 
         $plainPassword = Str::password(12, letters: true, numbers: true, symbols: false, spaces: false);
@@ -204,7 +208,9 @@ class UserController extends Controller
         }
         
         $colleges = College::with('departments')->get();
-        return view('admin.users.staff.edit', compact('user', 'colleges'));
+        $officeRoles = User::officeRoles();
+
+        return view('admin.users.staff.edit', compact('user', 'colleges', 'officeRoles'));
     }
 
     /**
@@ -220,7 +226,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'college_id' => 'required|exists:colleges,id',
-            'department_id' => 'required|exists:departments,id'
+            'department_id' => 'required|exists:departments,id',
+            'office_role' => ['required', Rule::in(array_keys(User::officeRoles()))],
         ]);
 
         $user->update($validated);

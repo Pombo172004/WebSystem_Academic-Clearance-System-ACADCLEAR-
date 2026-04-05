@@ -10,20 +10,36 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
         
-        // Get all clearances with department details
+        // Get all clearances with department/checklist details.
         $clearances = $student->clearances()
-            ->with('department')
-            ->orderBy('status')
+            ->with(['department', 'checklistItems'])
+            ->latest('updated_at')
             ->get();
+
+        $allItems = $clearances->flatMap(function ($clearance) {
+            if ($clearance->checklistItems->isNotEmpty()) {
+                return $clearance->checklistItems;
+            }
+
+            // Fallback for legacy clearances without checklist rows.
+            return collect([(object) [
+                'status' => $clearance->status,
+            ]]);
+        });
+
+        $approvedItems = $allItems->where('status', 'approved')->count();
+        $pendingItems = $allItems->where('status', 'pending')->count();
+        $rejectedClearances = $clearances->where('status', 'rejected')->count();
         
-        // Calculate statistics
+        // Calculate checklist-aware statistics.
         $stats = [
             'total' => $clearances->count(),
-            'approved' => $clearances->where('status', 'approved')->count(),
-            'rejected' => $clearances->where('status', 'rejected')->count(),
-            'pending' => $clearances->where('status', 'pending')->count(),
-            'progress' => $clearances->count() > 0 
-                ? round(($clearances->where('status', 'approved')->count() / $clearances->count()) * 100, 2)
+            'total_items' => $allItems->count(),
+            'approved' => $approvedItems,
+            'rejected' => $rejectedClearances,
+            'pending' => $pendingItems,
+            'progress' => $allItems->count() > 0 
+                ? round(($approvedItems / $allItems->count()) * 100, 2)
                 : 0
         ];
 

@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Clearance extends Model
 {
@@ -10,7 +11,10 @@ class Clearance extends Model
         'student_id',
         'department_id',
         'status',
-        'remarks'
+        'remarks',
+        'office_or_instructor',
+        'approval_location',
+        'clearance_title',
     ];
 
     protected $casts = [
@@ -25,5 +29,10 @@ class Clearance extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function checklistItems(): HasMany
+    {
+        return $this->hasMany(ClearanceChecklistItem::class)->orderBy('sort_order')->orderBy('id');
     }
 }

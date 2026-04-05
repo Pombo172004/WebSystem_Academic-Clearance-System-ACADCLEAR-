@@ -21,7 +21,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Clearance Progress</span>
-                                <span class="font-weight-bold">{{ $stats['approved'] }}/{{ $stats['total'] }} Departments ({{ $stats['progress'] }}%)</span>
+                                <span class="font-weight-bold">{{ $stats['approved'] }}/{{ $stats['total_items'] }} Checklist Items ({{ $stats['progress'] }}%)</span>
                             </div>
                             <div class="progress" style="height: 30px;">
                                 <div class="progress-bar bg-success" 
@@ -37,8 +37,8 @@
                     </div>
                     <div class="col-md-4">
                         <div class="text-center">
-                            <h3 class="mb-0">{{ $stats['approved'] }}/{{ $stats['total'] }}</h3>
-                            <small class="text-muted">Departments Cleared</small>
+                            <h3 class="mb-0">{{ $stats['approved'] }}/{{ $stats['total_items'] }}</h3>
+                            <small class="text-muted">Checklist Items Cleared</small>
                         </div>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Approved</div>
+                            Approved Items</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['approved'] }}</div>
                     </div>
                     <div class="col-auto">
@@ -92,7 +92,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            Pending</div>
+                            Pending Items</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['pending'] }}</div>
                     </div>
                     <div class="col-auto">
@@ -193,7 +193,7 @@
                         <span class="badge bg-success">Approved</span> - Clearance has been approved
                     </div>
                     <div class="col-md-4">
-                        <span class="badge bg-warning">Pending</span> - Waiting for department review
+                        <span class="badge bg-warning">Pending</span> - Waiting for office checklist approval
                     </div>
                     <div class="col-md-4">
                         <span class="badge bg-danger">Rejected</span> - Check remarks for reason

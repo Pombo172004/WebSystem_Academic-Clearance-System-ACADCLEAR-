@@ -13,6 +13,15 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const OFFICE_ROLE_LIBRARIAN = 'librarian';
+    public const OFFICE_ROLE_REGISTRAR = 'registrar';
+    public const OFFICE_ROLE_CASHIER = 'cashier';
+    public const OFFICE_ROLE_GUIDANCE_COUNSELOR = 'guidance_counselor';
+    public const OFFICE_ROLE_DEPARTMENT_CHAIR = 'department_chair';
+    public const OFFICE_ROLE_RESEARCH_COORDINATOR = 'research_coordinator';
+    public const OFFICE_ROLE_THESIS_ADVISER = 'thesis_adviser';
+    public const OFFICE_ROLE_STUDENT_AFFAIRS_OFFICER = 'student_affairs_officer';
+
     /**
      * Get the connection that should be used for the model.
      */
@@ -34,6 +43,7 @@ class User extends Authenticatable
         'role',
         'college_id',
         'department_id',
+        'office_role',
         'profile_photo_path',
     ];
 
@@ -122,5 +132,36 @@ class User extends Authenticatable
     public function isStudent()
     {
         return $this->role === 'student';
+    }
+
+    /**
+     * Allowed staff office roles.
+     *
+     * @return array<string, string>
+     */
+    public static function officeRoles(): array
+    {
+        return [
+            self::OFFICE_ROLE_LIBRARIAN => 'Librarian',
+            self::OFFICE_ROLE_REGISTRAR => 'Registrar',
+            self::OFFICE_ROLE_CASHIER => 'Cashier',
+            self::OFFICE_ROLE_GUIDANCE_COUNSELOR => 'Guidance Counselor',
+            self::OFFICE_ROLE_DEPARTMENT_CHAIR => 'Department Chair',
+            self::OFFICE_ROLE_RESEARCH_COORDINATOR => 'Research Coordinator',
+            self::OFFICE_ROLE_THESIS_ADVISER => 'Thesis Adviser',
+            self::OFFICE_ROLE_STUDENT_AFFAIRS_OFFICER => 'Student Affairs Officer',
+        ];
+    }
+
+    /**
+     * Human-readable office role label for UI.
+     */
+    public function getOfficeRoleLabelAttribute(): ?string
+    {
+        if (!$this->office_role) {
+            return null;
+        }
+
+        return static::officeRoles()[$this->office_role] ?? ucwords(str_replace('_', ' ', $this->office_role));
     }
 }

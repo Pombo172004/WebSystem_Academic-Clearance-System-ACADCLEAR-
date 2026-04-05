@@ -6,11 +6,32 @@
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Clearance Requests</h1>
     <div>
+        <a href="{{ route('staff.clearances.create') }}" class="btn btn-primary mr-2">
+            <i class="fas fa-plus"></i> Add Clearance
+        </a>
         <a href="{{ route('staff.clearances.export', request()->all()) }}" class="btn btn-success">
             <i class="fas fa-download"></i> Export
         </a>
     </div>
 </div>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
+@if(session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ session('warning') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
 
 <!-- Filter Form -->
 <div class="card shadow mb-4">
@@ -74,6 +95,10 @@
                         @endif
                         <th>Student</th>
                         <th>Department</th>
+                        <th>Clearance</th>
+                        <th>Office / Instructor</th>
+                        <th>Location</th>
+                        <th>Checklist</th>
                         <th>Status</th>
                         <th>Remarks</th>
                         <th>Request Date</th>
@@ -93,6 +118,42 @@
                             <small class="text-muted">{{ $clearance->student->email }}</small>
                         </td>
                         <td>{{ $clearance->department->name }}</td>
+                        <td>{{ $clearance->clearance_title ?? 'Department Clearance' }}</td>
+                        <td>{{ $clearance->office_or_instructor ?? 'Assigned staff' }}</td>
+                        <td>{{ $clearance->approval_location ?? 'Department Office' }}</td>
+                        <td>
+                            @if($clearance->checklistItems->isNotEmpty())
+                                <ul class="list-unstyled mb-0">
+                                    @foreach($clearance->checklistItems as $item)
+                                        <li class="mb-2 border rounded p-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong>{{ $item->item_name }}</strong>
+                                                    @if($item->contact_person)
+                                                        <div><small class="text-muted">{{ $item->contact_person }}</small></div>
+                                                    @endif
+                                                    @if($item->location)
+                                                        <div><small class="text-muted">{{ $item->location }}</small></div>
+                                                    @endif
+                                                </div>
+                                                <span class="badge bg-{{ $item->status === 'approved' ? 'success' : 'secondary' }}">
+                                                    {{ ucfirst($item->status) }}
+                                                </span>
+                                            </div>
+                                            <form action="{{ route('staff.clearances.checklist.update', ['clearance' => $clearance->id, 'item' => $item->id]) }}" method="POST" class="mt-2">
+                                                @csrf
+                                                <input type="hidden" name="status" value="{{ $item->status === 'approved' ? 'pending' : 'approved' }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-{{ $item->status === 'approved' ? 'warning' : 'success' }}">
+                                                    {{ $item->status === 'approved' ? 'Mark Pending' : 'Mark Approved' }}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span class="text-muted">No checklist</span>
+                            @endif
+                        </td>
                         <td>
                             @php
                                 $statusClass = [
@@ -170,7 +231,7 @@
                     </div>
                     @empty
                     <tr>
-                        <td colspan="{{ request('status') == 'pending' || !request('status') ? '7' : '6' }}" 
+                        <td colspan="{{ request('status') == 'pending' || !request('status') ? '12' : '11' }}" 
                             class="text-center">
                             No clearances found.
                         </td>

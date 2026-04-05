@@ -8,6 +8,15 @@
     </a>
 </div>
 
+@if(session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ session('warning') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
 <!-- Statistics Cards -->
 <div class="row">
     <!-- Total Clearances -->
@@ -111,6 +120,7 @@
                         <thead>
                             <tr>
                                 <th>Student</th>
+                                <th>Checklist Item</th>
                                 <th>Status</th>
                                 <th>Request Date</th>
                                 <th>Action</th>
@@ -118,18 +128,23 @@
                         </thead>
                         <tbody>
                             @forelse($recentClearances as $clearance)
+                            @php
+                                $roleItem = $clearance->checklistItems->first();
+                                $displayStatus = $roleItem->status ?? $clearance->status;
+                                $badgeClass = [
+                                    'approved' => 'success',
+                                    'rejected' => 'danger',
+                                    'pending' => 'warning'
+                                ][$displayStatus] ?? 'secondary';
+                            @endphp
                             <tr>
                                 <td>{{ $clearance->student->name }}</td>
                                 <td>
-                                    @php
-                                        $badgeClass = [
-                                            'approved' => 'success',
-                                            'rejected' => 'danger',
-                                            'pending' => 'warning'
-                                        ][$clearance->status];
-                                    @endphp
+                                    {{ $roleItem->item_name ?? ($clearance->clearance_title ?? 'Assigned Item') }}
+                                </td>
+                                <td>
                                     <span class="badge bg-{{ $badgeClass }}">
-                                        {{ ucfirst($clearance->status) }}
+                                        {{ ucfirst($displayStatus) }}
                                     </span>
                                 </td>
                                 <td>{{ $clearance->created_at->diffForHumans() }}</td>
@@ -142,7 +157,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="text-center">No recent clearances</td>
+                                <td colspan="5" class="text-center">No recent clearances</td>
                             </tr>
                             @endforelse
                         </tbody>
