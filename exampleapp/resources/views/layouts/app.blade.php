@@ -150,6 +150,13 @@
                         <i class="fas fa-fw fa-download"></i>
                         <span>Export</span></a>
                 </li>
+
+                <!-- Nav Item - Settings -->
+                <li class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('profile.edit') }}">
+                        <i class="fas fa-fw fa-cog"></i>
+                        <span>Settings</span></a>
+                </li>
             @else
                 <!-- Divider -->
                 <hr class="sidebar-divider">

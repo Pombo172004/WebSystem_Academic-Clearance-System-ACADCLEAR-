@@ -2,11 +2,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StaffAccountCreatedMail;
 use App\Models\User;
 use App\Models\College;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -160,18 +164,34 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
             'college_id' => 'required|exists:colleges,id',
             'department_id' => 'required|exists:departments,id'
         ]);
 
+        $plainPassword = Str::password(12, letters: true, numbers: true, symbols: false, spaces: false);
         $validated['role'] = 'staff';
-        $validated['password'] = Hash::make($validated['password']);
+        $validated['password'] = Hash::make($plainPassword);
 
-        User::create($validated);
+        $staff = User::create($validated);
+
+        $loginUrl = route('login');
+
+        try {
+            Mail::to($staff->email)->send(new StaffAccountCreatedMail($staff, $plainPassword, $loginUrl));
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send staff credentials email.', [
+                'staff_id' => $staff->id,
+                'staff_email' => $staff->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('admin.staff.index')
+                ->with('success', 'Staff created successfully.')
+                ->with('warning', 'Staff account was created, but the credentials email could not be sent.');
+        }
 
         return redirect()->route('admin.staff.index')
-            ->with('success', 'Staff created successfully.');
+            ->with('success', 'Staff created successfully and credentials were sent by email.');
     }
 
     /**

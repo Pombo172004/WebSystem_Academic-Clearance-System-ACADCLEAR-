@@ -4,7 +4,7 @@
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <div>
         <h1 class="h3 mb-1 text-gray-800">Add New Staff</h1>
-        <p class="mb-0 text-muted">Create a staff account and assign the correct college and department.</p>
+        <p class="mb-0 text-muted">Create a staff account and assign the correct college and department. Password is auto-generated and sent via email.</p>
     </div>
     <a href="{{ route('admin.staff.index') }}" class="btn btn-outline-secondary btn-sm mt-3 mt-sm-0">
         <i class="fas fa-arrow-left mr-1"></i> Back to List
@@ -61,35 +61,6 @@
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="password" class="font-weight-bold small text-uppercase text-gray-700 mb-2">Password <span class="text-danger">*</span></label>
-                        <input type="password" 
-                               class="form-control @error('password') is-invalid @enderror" 
-                               id="password" 
-                               name="password" 
-                               placeholder="At least 8 characters"
-                               required>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="password_confirmation" class="font-weight-bold small text-uppercase text-gray-700 mb-2">Confirm Password <span class="text-danger">*</span></label>
-                        <input type="password" 
-                               class="form-control" 
-                               id="password_confirmation" 
-                               name="password_confirmation" 
-                               placeholder="Re-enter password"
-                               required>
                     </div>
                 </div>
             </div>
