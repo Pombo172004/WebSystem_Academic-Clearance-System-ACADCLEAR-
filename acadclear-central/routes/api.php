@@ -71,6 +71,12 @@ Route::prefix('tenants')->group(function () {
             'slug' => $tenant->slug,
             'domain' => $tenant->domain,
             'database' => $tenant->database,
+            'logo' => $tenant->logo,
+            'logo_url' => $tenant->logo
+                ? (str_starts_with($tenant->logo, 'http://') || str_starts_with($tenant->logo, 'https://')
+                    ? $tenant->logo
+                    : asset('storage/' . ltrim($tenant->logo, '/')))
+                : null,
             'status' => $tenant->status,
             'is_active' => $tenant->status === 'active' && $activeSubscription !== null,
             'plan' => $activeSubscription ? [

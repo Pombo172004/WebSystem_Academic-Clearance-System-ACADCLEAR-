@@ -44,6 +44,7 @@ class User extends Authenticatable
         'college_id',
         'department_id',
         'office_role',
+        'permissions',
         'profile_photo_path',
     ];
 
@@ -83,6 +84,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'permissions' => 'array',
         ];
     }
 
@@ -163,5 +165,51 @@ class User extends Authenticatable
         }
 
         return static::officeRoles()[$this->office_role] ?? ucwords(str_replace('_', ' ', $this->office_role));
+    }
+
+    /**
+     * Resolve RBAC permissions assigned to the user's role.
+     *
+     * @return array<int, string>
+     */
+    public function getRolePermissions(): array
+    {
+        $map = config('rbac.roles', []);
+        $permissions = $map[$this->role] ?? [];
+
+        if ($this->role === 'staff') {
+            $userPermissions = is_array($this->permissions) ? $this->permissions : [];
+
+            if (!empty($userPermissions)) {
+                return array_values(array_unique($userPermissions));
+            }
+        }
+
+        return is_array($permissions) ? $permissions : [];
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        $permissions = $this->getRolePermissions();
+
+        if (in_array('*', $permissions, true)) {
+            return true;
+        }
+
+        return in_array($permission, $permissions, true);
+    }
+
+    /**
+     * @param array<int, string> $permissions
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

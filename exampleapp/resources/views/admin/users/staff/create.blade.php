@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $canManageStaff = auth()->user()->hasPermission('tenant.staff.manage');
+@endphp
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <div>
         <h1 class="h3 mb-1 text-gray-800">Add New Staff</h1>
@@ -28,6 +31,7 @@
         <span class="badge badge-light border text-primary">Required fields marked *</span>
     </div>
     <div class="card-body">
+        @if($canManageStaff)
         <form action="{{ route('admin.staff.store') }}" method="POST">
             @csrf
             
@@ -120,6 +124,46 @@
                         @enderror
                     </div>
                 </div>
+
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
+                            <label class="font-weight-bold small text-uppercase text-gray-700 mb-0">Module Access</label>
+                            <div class="mt-2 mt-sm-0">
+                                <button type="button" class="btn btn-sm btn-outline-primary mr-1" id="selectAllModulesCreate">Select All</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearAllModulesCreate">Clear</button>
+                            </div>
+                        </div>
+                        <div class="border rounded p-3 bg-light">
+                            <div class="row">
+                                @foreach($availableModules as $moduleKey => $permissions)
+                                    @php
+                                        $checked = in_array($moduleKey, old('modules', []), true);
+                                        $label = ucwords(str_replace('_', ' ', $moduleKey));
+                                    @endphp
+                                    <div class="col-md-4 mb-2">
+                                        <div class="custom-control custom-checkbox border rounded px-3 py-2 bg-white">
+                                            <input type="checkbox"
+                                                   class="custom-control-input staff-module-checkbox"
+                                                   id="module_{{ $moduleKey }}"
+                                                   name="modules[]"
+                                                   value="{{ $moduleKey }}"
+                                                   {{ $checked ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="module_{{ $moduleKey }}">{{ $label }}</label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <small class="text-muted d-block mt-2">Select modules this staff member can access from the sidebar.</small>
+                        </div>
+                        @error('modules')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                        @error('modules.*')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <div class="d-flex flex-wrap align-items-center mt-2">
@@ -129,6 +173,9 @@
                 <a href="{{ route('admin.staff.index') }}" class="btn btn-light border mb-2">Cancel</a>
             </div>
         </form>
+        @else
+        <div class="alert alert-warning mb-0">You do not have permission to create staff.</div>
+        @endif
     </div>
 </div>
 @endsection
@@ -139,6 +186,8 @@
         var collegeSelect = document.getElementById('college_id');
         var departmentSelect = document.getElementById('department_id');
         var oldDepartmentId = '{{ old('department_id') }}';
+        var selectAllModulesBtn = document.getElementById('selectAllModulesCreate');
+        var clearAllModulesBtn = document.getElementById('clearAllModulesCreate');
 
         function resetDepartment(message) {
             departmentSelect.innerHTML = '<option value="">' + message + '</option>';
@@ -183,6 +232,20 @@
         if (collegeSelect.value) {
             loadDepartments(collegeSelect.value, oldDepartmentId);
         }
+
+        function setAllModules(checked) {
+            document.querySelectorAll('.staff-module-checkbox').forEach(function (checkbox) {
+                checkbox.checked = checked;
+            });
+        }
+
+        selectAllModulesBtn?.addEventListener('click', function () {
+            setAllModules(true);
+        });
+
+        clearAllModulesBtn?.addEventListener('click', function () {
+            setAllModules(false);
+        });
     });
 </script>
 @endpush
