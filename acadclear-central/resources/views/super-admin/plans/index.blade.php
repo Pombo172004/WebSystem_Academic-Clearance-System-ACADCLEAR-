@@ -3,9 +3,14 @@
 @section('content')
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Pricing Plans</h1>
-    <a href="{{ route('super-admin.plans.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Add New Plan
-    </a>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-secondary px-3 py-2" style="font-size:0.8rem;">
+            <i class="fas fa-lock me-1"></i> Basic, Standard &amp; Enterprise are system plans
+        </span>
+        <a href="{{ route('super-admin.plans.create') }}" class="btn btn-primary ms-2">
+            <i class="fas fa-plus"></i> Add New Plan
+        </a>
+    </div>
 </div>
 
 @if(session('success'))
@@ -34,17 +39,17 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="m-0 font-weight-bold">{{ $plan->name }}</h5>
                     @if($plan->slug == 'standard')
-                        <span class="badge bg-warning">POPULAR</span>
+                        <span class="badge" style="background-color: #0e1326; color: #FFFFFF;">POPULAR</span>
                     @endif
                 </div>
             </div>
             <div class="card-body">
                 @if($plan->price == 0)
-                    <h2 class="text-{{ $plan->slug == 'basic' ? 'primary' : ($plan->slug == 'standard' ? 'success' : 'info') }}">
+                    <h2 style="color: #32435d;">
                         Custom Pricing
                     </h2>
                 @else
-                    <h2 class="text-{{ $plan->slug == 'basic' ? 'primary' : ($plan->slug == 'standard' ? 'success' : 'info') }}">
+                    <h2 style="color: #32435d;">
                         ₱{{ number_format($plan->price, 2) }}
                         <span class="small">/month</span>
                     </h2>
@@ -78,21 +83,22 @@
             </div>
             <div class="card-footer">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-{{ 
-                        $plan->slug == 'basic' ? 'primary' : 
-                        ($plan->slug == 'standard' ? 'success' : 'info') 
-                    }}">
+                    <span class="badge" style="background-color: #32435d; color: #FFFFFF;">
                         {{ $plan->subscriptions_count }} active subscribers
                     </span>
                     <div>
-                        <a href="{{ route('super-admin.plans.edit', $plan) }}" class="btn btn-sm btn-warning">
+                        <a href="{{ route('super-admin.plans.edit', $plan) }}" class="btn btn-sm btn-warning" title="Edit plan">
                             <i class="fas fa-edit"></i>
                         </a>
-                        @if($plan->subscriptions_count == 0)
+                        @if(in_array($plan->slug, ['basic', 'standard', 'enterprise']))
+                            <span class="badge bg-secondary ms-1" title="System plan — cannot be deleted">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                        @elseif($plan->subscriptions_count == 0)
                         <form action="{{ route('super-admin.plans.destroy', $plan) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" 
+                            <button type="submit" class="btn btn-sm btn-danger"
                                     onclick="return confirm('Delete this plan?')">
                                 <i class="fas fa-trash"></i>
                             </button>

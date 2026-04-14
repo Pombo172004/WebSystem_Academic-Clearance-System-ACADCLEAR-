@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class PlanController extends Controller
 {
+    /**
+     * These 3 slugs are constant system plans seeded automatically via migration.
+     * They cannot be deleted — only edited (price/features can be updated).
+     */
+    const SYSTEM_PLANS = ['basic', 'standard', 'enterprise'];
+
     public function index()
     {
         $plans = Plan::withCount('subscriptions')->get();
@@ -20,6 +26,13 @@ class PlanController extends Controller
 
     public function store(Request $request)
     {
+        // Prevent creating a duplicate of any system plan
+        if (in_array(strtolower($request->input('slug', '')), self::SYSTEM_PLANS)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Cannot create a plan with a reserved system slug (basic, standard, enterprise).');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:plans',
@@ -33,8 +46,7 @@ class PlanController extends Controller
         ]);
 
         $validated['features'] = json_encode($validated['features'] ?? []);
-        
-        // Set default values for boolean fields
+
         $validated['has_advanced_reports'] = $request->has('has_advanced_reports');
         $validated['has_multi_campus'] = $request->has('has_multi_campus');
         $validated['has_custom_branding'] = $request->has('has_custom_branding');
@@ -48,6 +60,7 @@ class PlanController extends Controller
 
     public function edit(Plan $plan)
     {
+        $plan->loadCount('subscriptions');
         return view('super-admin.plans.edit', compact('plan'));
     }
 
@@ -65,7 +78,7 @@ class PlanController extends Controller
         ]);
 
         $validated['features'] = json_encode($validated['features'] ?? []);
-        
+
         $validated['has_advanced_reports'] = $request->has('has_advanced_reports');
         $validated['has_multi_campus'] = $request->has('has_multi_campus');
         $validated['has_custom_branding'] = $request->has('has_custom_branding');
@@ -79,6 +92,12 @@ class PlanController extends Controller
 
     public function destroy(Plan $plan)
     {
+        // Block deletion of the 3 system plans
+        if (in_array($plan->slug, self::SYSTEM_PLANS)) {
+            return redirect()->back()
+                ->with('error', 'System plans (Basic, Standard, Enterprise) cannot be deleted.');
+        }
+
         if ($plan->subscriptions()->count() > 0) {
             return redirect()->back()
                 ->with('error', 'Cannot delete plan with active subscriptions.');

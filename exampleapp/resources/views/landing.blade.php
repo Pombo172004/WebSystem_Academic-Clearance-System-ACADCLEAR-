@@ -5,7 +5,7 @@
     <div class="mx-auto max-w-6xl space-y-6">
         <section class="overflow-hidden rounded-[30px] bg-white shadow-2xl">
             <div class="grid lg:grid-cols-2">
-                <div class="flex flex-col justify-between bg-blue-600 p-8 text-white md:p-12">
+                <div class="flex flex-col justify-between p-8 text-white md:p-12" style="background-color: #122C4F !important;">
                     <div class="space-y-5">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-100">AcadClear Tenant App</p>
@@ -23,11 +23,11 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col justify-between bg-slate-950 p-8 text-white md:p-12">
+                <div class="flex flex-col justify-between p-8 text-white md:p-12" style="background-color: #000000 !important;">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-slate-300">Already have an account?</p>
-                            <a href="{{ route('login') }}" class="mt-3 inline-flex rounded-xl bg-blue-500 px-5 py-2.5 font-semibold transition hover:bg-blue-600">Go to Login</a>
+                            <a href="{{ route('login') }}" class="mt-3 inline-flex rounded-xl px-5 py-2.5 font-semibold transition hover:opacity-90" style="background-color: #5B88B2 !important; color: white;">Go to Login</a>
                         </div>
                         <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-right">
                             <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Payments</p>
@@ -179,7 +179,7 @@
 
                 <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-sm text-slate-500">Your request will be reviewed after submission.</p>
-                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold text-white transition hover:opacity-90" style="background-color: #32435d !important;">
                         Submit Request
                     </button>
                 </div>

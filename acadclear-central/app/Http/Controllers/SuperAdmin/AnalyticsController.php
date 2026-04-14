@@ -140,7 +140,7 @@ class AnalyticsController extends Controller
         return [
             'labels' => $distribution->pluck('plan_name'),
             'data' => $distribution->pluck('count'),
-            'colors' => ['#4e73df', '#1cc88a', '#36b9cc'],
+            'colors' => ['#122C4F', '#5B88B2', '#000000'],
         ];
     }
 
