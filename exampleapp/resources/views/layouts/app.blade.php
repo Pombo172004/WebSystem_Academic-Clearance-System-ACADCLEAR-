@@ -640,13 +640,73 @@
                         $topbarNotificationLink = '#';
                         $topbarMailLink = route('support.chat');
 
-                        $tenantSlugForSupport = (string) (request()->attributes->get('tenant_slug') ?? data_get($currentTenant ?? null, 'slug', ''));
-                        if ($tenantSlugForSupport !== '') {
-                            $supportSummary = app(\App\Services\TenantService::class)->getSupportChatSummary($tenantSlugForSupport);
-                            $topbarMailCount = (int) ($supportSummary['unread_count'] ?? 0);
-                            $topbarMails = collect($supportSummary['recent_messages'] ?? []);
+                        // ── Support Chat Unread Badge ─────────────────────────────────────────
+                        // Students / Staff: count unread LOCAL messages from the school admin only.
+                        // School Admin   : count unread LOCAL messages from students/staff.
+                        //                  (Central unread NOT shown in badge — admin uses the
+                        //                   Central Support tab inside the chat for that.)
+                        if ($user->hasPermission('tenant.support_chat.access')) {
+                            try {
+                            if ($user->role === 'school_admin') {
+                                // Unread messages sent to admin from students/staff
+                                $topbarMailCount = \App\Models\Message::where('receiver_id', $user->id)
+                                    ->where('is_read', false)
+                                    ->whereHas('sender', function ($q) {
+                                        $q->whereIn('role', ['student', 'staff']);
+                                    })
+                                    ->count();
+
+                                // Recent unread senders for the dropdown
+                                $topbarMails = \App\Models\Message::with('sender')
+                                    ->where('receiver_id', $user->id)
+                                    ->where('is_read', false)
+                                    ->whereHas('sender', function ($q) {
+                                        $q->whereIn('role', ['student', 'staff']);
+                                    })
+                                    ->latest()
+                                    ->take(5)
+                                    ->get()
+                                    ->map(function ($m) {
+                                        return [
+                                            'sender_name' => optional($m->sender)->name ?? 'User',
+                                            'message'     => $m->message,
+                                            'with_id'     => $m->sender_id,
+                                        ];
+                                    });
+
+                            } elseif (in_array($user->role, ['student', 'staff'])) {
+                                // Find school admin to check replies from them
+                                $schoolAdmin = \App\Models\User::where('role', 'school_admin')->first();
+
+                                if ($schoolAdmin) {
+                                    $topbarMailCount = \App\Models\Message::where('sender_id', $schoolAdmin->id)
+                                        ->where('receiver_id', $user->id)
+                                        ->where('is_read', false)
+                                        ->count();
+
+                                    if ($topbarMailCount > 0) {
+                                        $topbarMails = \App\Models\Message::with('sender')
+                                            ->where('sender_id', $schoolAdmin->id)
+                                            ->where('receiver_id', $user->id)
+                                            ->where('is_read', false)
+                                            ->latest()
+                                            ->take(5)
+                                            ->get()
+                                            ->map(function ($m) {
+                                                return [
+                                                    'sender_name' => optional($m->sender)->name ?? 'School Admin',
+                                                    'message'     => $m->message,
+                                                ];
+                                            });
+                                    }
+                                }
+                            }
+                            } catch (\Exception $e) {
+                                // local_messages table may not exist yet — badge stays at 0
+                            }
                         }
 
+                        // ── Clearance Notifications ───────────────────────────────────────────
                         if ($user->role === 'school_admin') {
                             $topbarNotificationLink = route('admin.clearances.index');
 
@@ -706,7 +766,6 @@
                                 ->latest()
                                 ->take(5)
                                 ->get();
-
                         }
                     @endphp
                     <ul class="navbar-nav ml-auto">
@@ -828,7 +887,8 @@
                             </div>
                         </li>
 
-                        <!-- Nav Item - Messages -->
+                        <!-- Nav Item - Messages (only for users with chat access) -->
+                        @if($user->hasPermission('tenant.support_chat.access'))
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -841,24 +901,36 @@
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="messagesDropdown">
                                 <h6 class="dropdown-header">
-                                    Support Inbox
+                                    @if($user->role === 'school_admin')
+                                        Unread from Students &amp; Staff
+                                    @else
+                                        School Admin Replies
+                                    @endif
                                 </h6>
                                 @forelse($topbarMails as $mailItem)
-                                    <a class="dropdown-item d-flex align-items-center" href="{{ $topbarMailLink }}">
+                                    @php
+                                        // Admin: link directly into the sender's thread
+                                        $mailItemLink = $topbarMailLink;
+                                        if ($user->role === 'school_admin' && !empty($mailItem['with_id'])) {
+                                            $mailItemLink = route('support.chat') . '?with=' . $mailItem['with_id'];
+                                        }
+                                    @endphp
+                                    <a class="dropdown-item d-flex align-items-center" href="{{ $mailItemLink }}">
                                         <div class="dropdown-list-image mr-3">
                                             <i class="fas fa-envelope fa-lg text-primary"></i>
                                         </div>
                                         <div class="font-weight-bold">
-                                            <div class="text-truncate">{{ \Illuminate\Support\Str::limit(data_get($mailItem, 'sender_name', 'Super Admin'), 45) }}</div>
+                                            <div class="text-truncate">{{ \Illuminate\Support\Str::limit(data_get($mailItem, 'sender_name', 'School Admin'), 45) }}</div>
                                             <div class="small text-gray-500">{{ \Illuminate\Support\Str::limit(data_get($mailItem, 'message', 'Support message'), 60) }}</div>
                                         </div>
                                     </a>
                                 @empty
-                                    <span class="dropdown-item text-center small text-gray-500">No support messages right now</span>
+                                    <span class="dropdown-item text-center small text-gray-500">No unread messages right now</span>
                                 @endforelse
                                 <a class="dropdown-item text-center small text-gray-500" href="{{ $topbarMailLink }}">Open support chat</a>
                             </div>
                         </li>
+                        @endif
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 

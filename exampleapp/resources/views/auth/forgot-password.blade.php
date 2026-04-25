@@ -1,65 +1,77 @@
 @extends('layouts.auth')
 
 @section('content')
-<div class="min-h-screen bg-white flex flex-col">
-    {{-- Header: brand top left --}}
-    <header class="p-6">
-        <a href="{{ route('login') }}" class="text-lg font-semibold text-blue-600 hover:text-blue-700">ACADCLEAR</a>
-    </header>
-
-    {{-- Main: illustration + form side by side --}}
-    <main class="flex-1 flex items-center justify-center px-4 py-8">
-        <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12 max-w-2xl w-full">
-            {{-- Left: illustration --}}
-            <div class="flex-shrink-0 w-48 h-48 md:w-56 md:h-56">
-                <div class="relative w-full h-full">
-                    <svg viewBox="0 0 200 200" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        {{-- Background gears (light grey) --}}
-                        <circle cx="50" cy="45" r="18" stroke="#e2e8f0" stroke-width="2" fill="white"/>
-                        <circle cx="150" cy="120" r="22" stroke="#e2e8f0" stroke-width="2" fill="white"/>
-                        {{-- Envelope --}}
-                        <g transform="translate(125, 35)">
-                            <rect width="40" height="28" rx="2" fill="#3b82f6" opacity="0.9"/>
-                            <path d="M2 6 L20 18 L38 6" stroke="white" stroke-width="2" fill="none"/>
-                        </g>
-                        {{-- Browser/document window --}}
-                        <rect x="30" y="75" width="100" height="70" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
-                        <rect x="36" y="88" width="88" height="12" rx="2" fill="#fbbf24"/>
-                        <rect x="36" y="105" width="60" height="8" rx="1" fill="#e2e8f0"/>
-                        {{-- Padlock --}}
-                        <g transform="translate(75, 95)">
-                            <rect x="8" y="22" width="34" height="28" rx="3" fill="#3b82f6"/>
-                            <path d="M18 22 L18 14 A10 10 0 0 1 32 14 L32 22" stroke="#3b82f6" stroke-width="4" fill="none"/>
-                            <rect x="18" y="32" width="14" height="8" rx="1" fill="white"/>
-                        </g>
-                        {{-- Key --}}
-                        <circle cx="155" cy="155" r="12" fill="#3b82f6"/>
-                        <rect x="155" y="155" width="20" height="6" fill="#3b82f6"/>
-                        <circle cx="172" cy="158" r="5" fill="white"/>
-                    </svg>
+<div class="min-h-screen flex items-center justify-center p-4 md:p-6" style="background-color: #ffffff;">
+    <div class="w-full max-w-5xl min-h-[600px] flex flex-col md:flex-row rounded-[28px] overflow-hidden shadow-2xl bg-white">
+        {{-- Left panel: Branding --}}
+        <div class="md:w-[45%] flex flex-col justify-between p-8 md:p-10 text-white" style="background-color: #122C4F !important;">
+            <div>
+                {{-- Logo + brand --}}
+                <div class="flex items-center gap-3">
+                    <div class="flex -space-x-1.5">
+                        <span class="w-9 h-9 rounded-lg bg-white/20 border-2 border-white/40 inline-block"></span>
+                        <span class="w-9 h-9 rounded-lg bg-white/30 border-2 border-white/40 inline-block"></span>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold tracking-tight">ACADCLEAR</span>
+                        <span class="block text-xs font-medium text-blue-100 tracking-widest uppercase mt-0.5">Academic Clearance System</span>
+                    </div>
                 </div>
             </div>
 
-            {{-- Right: form --}}
-            <div class="flex-1 w-full max-w-[320px]">
-                <h1 class="text-2xl font-bold text-slate-800">Forgot Password</h1>
-                <p class="mt-1 text-sm text-slate-500">Enter your email and we'll send you a link to reset your password.</p>
+            {{-- Illustration --}}
+            <div class="flex-1 flex items-center justify-center my-8 md:my-10">
+                <div class="relative w-full max-w-[220px]">
+                    <div class="aspect-square rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-inner">
+                        <svg class="w-24 h-24 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-lg font-bold">@</div>
+                    <div class="absolute -bottom-1 -left-1 w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                    </div>
+                </div>
+            </div>
 
-                <x-auth-session-status class="mt-4 rounded-lg bg-emerald-50 text-emerald-700 px-3 py-2 text-sm" :status="session('status')" />
-                <x-auth-validation-errors class="mt-4 rounded-lg bg-red-50 text-red-600 px-3 py-2 text-sm" :errors="$errors" />
+            <div>
+                <p class="text-lg font-medium leading-snug text-white/95 max-w-[280px]">
+                    No worries! We'll send you a link to reset your password right away.
+                </p>
+                <a href="{{ route('login') }}" class="inline-block mt-4 text-sm font-medium text-blue-100 hover:text-white transition">&larr; Back to Login</a>
+            </div>
+        </div>
 
-                <form method="POST" action="{{ route('password.email') }}" class="mt-4 space-y-4">
+        {{-- Right panel: Form (black) --}}
+        <div class="md:w-[55%] flex flex-col p-8 md:p-10" style="background-color: #000000 !important;">
+            {{-- Nav --}}
+            <nav class="flex items-center justify-end gap-6 text-sm font-medium mb-8">
+                <a href="{{ route('landing.index') }}" class="text-white/80 hover:text-white transition">Plans</a>
+                <a href="#" class="text-white/80 hover:text-white transition">About Us</a>
+                <a href="#" class="text-white/80 hover:text-white transition">Contact</a>
+                <a href="{{ route('login') }}" class="text-blue-300 hover:text-blue-200 transition">Log in</a>
+            </nav>
+
+            <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
+                <h2 class="text-2xl font-bold text-white text-center mb-2">Forgot Password?</h2>
+                <p class="text-sm text-white/60 text-center mb-6">Enter your email and we'll send you a reset link.</p>
+
+                <x-auth-session-status class="mb-4 rounded-lg bg-emerald-500/20 text-emerald-200 px-4 py-3 text-sm" :status="session('status')" />
+                <x-auth-validation-errors class="mb-4 rounded-lg bg-red-500/20 text-red-200 px-4 py-3 text-sm" :errors="$errors" />
+
+                <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
                     @csrf
                     <div>
                         <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color: #122C4F;">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>
                             </span>
                             <x-text-input
                                 id="email"
-                                class="block w-full rounded-lg border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 pl-10 py-2.5 text-sm transition"
+                                class="block w-full rounded-xl border-0 py-3 pl-10 pr-4 transition"
+                                style="background-color: #FBF9E4 !important; color: #122C4F !important;"
                                 type="email"
                                 name="email"
                                 :value="old('email')"
@@ -68,27 +80,24 @@
                                 placeholder="Email"
                             />
                         </div>
-                        <x-input-error :messages="$errors->get('email')" class="mt-1.5 text-red-600 text-sm" />
+                        <x-input-error :messages="$errors->get('email')" class="mt-1.5 text-red-300 text-sm" />
                     </div>
 
                     <button
                         type="submit"
-                        class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition"
+                        class="w-full py-3.5 px-4 rounded-xl font-semibold text-white transition hover:opacity-90"
+                        style="background-color: #122C4F !important;"
                     >
-                        Submit
+                        Send Reset Link
                     </button>
                 </form>
 
-                <a href="{{ route('login') }}" class="inline-block mt-4 text-sm font-medium text-slate-700 hover:text-slate-900 transition">
-                    &larr; Back to Login
-                </a>
+                <p class="mt-6 text-center text-sm text-white/80">
+                    Remembered your password?
+                    <a href="{{ route('login') }}" class="font-medium text-blue-300 hover:text-blue-200 transition">Log in</a>
+                </p>
             </div>
         </div>
-    </main>
-
-    {{-- Footer --}}
-    <footer class="p-6 text-left">
-        <p class="text-xs text-slate-400">Created with ❤️ by AcadClear</p>
-    </footer>
+    </div>
 </div>
 @endsection
