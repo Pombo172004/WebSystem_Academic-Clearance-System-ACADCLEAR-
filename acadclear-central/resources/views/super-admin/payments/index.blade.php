@@ -87,7 +87,8 @@
     <div class="card-body">
         <form method="GET" class="row">
             <div class="col-md-3">
-                <select name="tenant_id" class="form-select">
+                <label for="payment-tenant-filter" class="visually-hidden">Filter by university</label>
+                <select id="payment-tenant-filter" name="tenant_id" class="form-select">
                     <option value="">All Universities</option>
                     @foreach($tenants as $tenant)
                         <option value="{{ $tenant->id }}" {{ request('tenant_id') == $tenant->id ? 'selected' : '' }}>
@@ -97,7 +98,8 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <select name="status" class="form-select">
+                <label for="payment-status-filter" class="visually-hidden">Filter by payment status</label>
+                <select id="payment-status-filter" name="status" class="form-select">
                     <option value="">All Status</option>
                     <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -106,10 +108,12 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" placeholder="From">
+                <label for="payment-date-from" class="visually-hidden">Payment date from</label>
+                <input type="date" id="payment-date-from" name="date_from" class="form-control" value="{{ request('date_from') }}" placeholder="From">
             </div>
             <div class="col-md-2">
-                <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" placeholder="To">
+                <label for="payment-date-to" class="visually-hidden">Payment date to</label>
+                <input type="date" id="payment-date-to" name="date_to" class="form-control" value="{{ request('date_to') }}" placeholder="To">
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">Filter</button>

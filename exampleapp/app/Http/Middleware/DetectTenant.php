@@ -58,19 +58,26 @@ class DetectTenant
             $tenantLocalLogoUrl = asset('storage/' . ltrim($tenantBranding['logo'], '/'));
         }
 
-        $tenantColorScheme = $tenantBranding['color_scheme'] ?? 'ocean';
-        $tenantColorScheme = match ($tenantColorScheme) {
-            'blue' => 'ocean',
-            'emerald' => 'forest',
-            'amber' => 'sunset',
-            default => $tenantColorScheme,
-        };
+        // 60-30-10 rule: primary = sidebar (60%), accent = buttons/icons (30%), black = text/details (10%)
+        $tenantPrimaryColor  = $tenantBranding['custom_primary'] ?? '#122C4F';  // default: Midnight blue
+        $tenantAccentColor   = $tenantBranding['custom_accent']  ?? '#5B88B2';  // default: Ocean blue
+
+        // Validate hex format – fall back to defaults on bad data
+        $hexPattern = '/^#[0-9A-Fa-f]{6}$/';
+        if (!preg_match($hexPattern, $tenantPrimaryColor)) {
+            $tenantPrimaryColor = '#122C4F';
+        }
+        if (!preg_match($hexPattern, $tenantAccentColor)) {
+            $tenantAccentColor = '#5B88B2';
+        }
 
         view()->share('currentTenant', $tenantDetails);
         view()->share('tenantFeatures', $tenantFeatures);
         view()->share('tenantLocalLogoUrl', $tenantLocalLogoUrl);
         view()->share('tenantBranding', $tenantBranding);
-        view()->share('tenantColorScheme', $tenantColorScheme);
+        view()->share('tenantColorScheme', 'custom'); // kept for legacy blade references
+        view()->share('tenantPrimaryColor', $tenantPrimaryColor);
+        view()->share('tenantAccentColor', $tenantAccentColor);
         
         return $next($request);
     }

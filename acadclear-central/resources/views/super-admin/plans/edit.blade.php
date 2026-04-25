@@ -28,26 +28,26 @@
             {{-- Basic Info --}}
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Plan Name *</label>
-                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
-                           value="{{ old('name', $plan->name) }}" required>
+                    <label for="edit-plan-name" class="form-label">Plan Name *</label>
+                    <input type="text" id="edit-plan-name" name="name" class="form-control @error('name') is-invalid @enderror"
+                           value="{{ old('name', $plan->name) }}" required autocomplete="off">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Slug</label>
-                    <input type="text" class="form-control bg-light" value="{{ $plan->slug }}" disabled>
+                    <label for="edit-plan-slug" class="form-label">Slug</label>
+                    <input type="text" id="edit-plan-slug" class="form-control bg-light" value="{{ $plan->slug }}" disabled>
                     <small class="text-muted">Slug cannot be changed after creation</small>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Price (₱) *</label>
-                    <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
-                           value="{{ old('price', $plan->price) }}" required step="0.01" min="0">
+                    <label for="edit-plan-price" class="form-label">Price (₱) *</label>
+                    <input type="number" id="edit-plan-price" name="price" class="form-control @error('price') is-invalid @enderror"
+                           value="{{ old('price', $plan->price) }}" required step="0.01" min="0" autocomplete="off">
                     @error('price')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -55,17 +55,17 @@
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Max Students</label>
-                    <input type="number" name="max_students" class="form-control @error('max_students') is-invalid @enderror"
-                           value="{{ old('max_students', $plan->max_students) }}" placeholder="Leave empty for unlimited" min="0">
+                    <label for="edit-plan-max-students" class="form-label">Max Students</label>
+                    <input type="number" id="edit-plan-max-students" name="max_students" class="form-control @error('max_students') is-invalid @enderror"
+                           value="{{ old('max_students', $plan->max_students) }}" placeholder="Leave empty for unlimited" min="0" autocomplete="off">
                     @error('max_students')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Active Subscribers</label>
-                    <input type="text" class="form-control bg-light" value="{{ $plan->subscriptions_count }}" disabled>
+                    <label for="edit-plan-subscribers" class="form-label">Active Subscribers</label>
+                    <input type="text" id="edit-plan-subscribers" class="form-control bg-light" value="{{ $plan->subscriptions_count }}" disabled>
                 </div>
             </div>
 

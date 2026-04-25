@@ -195,8 +195,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Plan</label>
-                        <select name="plan_id" class="form-select" required>
+                        <label for="subscription-show-renew-plan" class="form-label">Plan</label>
+                        <select id="subscription-show-renew-plan" name="plan_id" class="form-select" required>
                             @foreach(App\Models\Plan::all() as $plan)
                                 <option value="{{ $plan->id }}" {{ $subscription->plan_id == $plan->id ? 'selected' : '' }}>
                                     {{ $plan->name }} - ₱{{ number_format($plan->price, 2) }}/month
@@ -206,8 +206,8 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Months</label>
-                        <select name="months" class="form-select" required>
+                        <label for="subscription-show-renew-months" class="form-label">Months</label>
+                        <select id="subscription-show-renew-months" name="months" class="form-select" required>
                             <option value="1">1 Month</option>
                             <option value="3">3 Months (5% discount)</option>
                             <option value="6">6 Months (10% discount)</option>
@@ -216,13 +216,13 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Amount Paid (₱)</label>
-                        <input type="number" name="amount_paid" class="form-control" required step="0.01">
+                        <label for="subscription-show-renew-amount" class="form-label">Amount Paid (₱)</label>
+                        <input type="number" id="subscription-show-renew-amount" name="amount_paid" class="form-control" required step="0.01">
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Payment Method</label>
-                        <select name="payment_method" class="form-select" required>
+                        <label for="subscription-show-renew-payment-method" class="form-label">Payment Method</label>
+                        <select id="subscription-show-renew-payment-method" name="payment_method" class="form-select" required>
                             <option value="cash">Cash</option>
                             <option value="bank_transfer">Bank Transfer</option>
                             <option value="credit_card">Credit Card</option>

@@ -8,18 +8,73 @@
     $canExportClearance = auth()->user()->hasPermission('tenant.clearances.export');
     $canUpdateClearance = auth()->user()->hasPermission('tenant.clearances.update');
 @endphp
+@push('styles')
+<style>
+    .clearances-page-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .clearances-page-action {
+        min-width: 12.5rem;
+        min-height: calc(1.5em + 0.75rem + 2px);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff !important;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    .btn-clearance-create {
+        border-color: var(--tenant-accent, #5B88B2) !important;
+        color: var(--tenant-accent, #5B88B2) !important;
+    }
+
+    .btn-clearance-create:hover,
+    .btn-clearance-create:focus {
+        background-color: var(--tenant-primary-soft, #5B88B220) !important;
+        border-color: var(--tenant-accent, #5B88B2) !important;
+        color: var(--tenant-accent, #5B88B2) !important;
+        box-shadow: 0 0 0 0.2rem var(--tenant-primary-soft, #5B88B220) !important;
+    }
+
+    .btn-clearance-export {
+        border-color: var(--tenant-sidebar-bg, #122C4F) !important;
+        color: var(--tenant-sidebar-bg, #122C4F) !important;
+    }
+
+    .btn-clearance-export:hover,
+    .btn-clearance-export:focus {
+        background-color: rgba(18, 44, 79, 0.12) !important;
+        border-color: var(--tenant-sidebar-bg, #122C4F) !important;
+        color: var(--tenant-sidebar-bg, #122C4F) !important;
+        box-shadow: 0 0 0 0.2rem rgba(18, 44, 79, 0.12) !important;
+    }
+
+    .clearances-filter-form .form-control {
+        min-height: calc(1.5em + 0.75rem + 2px);
+        border-color: #d1d5db;
+        background-color: #ffffff;
+    }
+
+    .clearances-filter-form .clearances-filter-action {
+        min-height: calc(1.5em + 0.75rem + 2px);
+    }
+</style>
+@endpush
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Clearance Requests</h1>
-    <div>
+    <div class="clearances-page-actions">
         @if($canCreateClearance)
-            <a href="{{ route('admin.clearances.create') }}" class="btn btn-primary mr-2">
+            <a href="{{ route('admin.clearances.create') }}" class="btn clearances-page-action btn-clearance-create">
                 <i class="fas fa-plus"></i> Add Clearance
             </a>
         @endif
         @if($canExportClearance)
-            <a href="{{ route('admin.clearances.export', request()->all()) }}" class="btn btn-success">
+            <button type="button" class="btn clearances-page-action btn-clearance-export" data-bs-toggle="modal" data-bs-target="#exportModal">
                 <i class="fas fa-download"></i> Export
-            </a>
+            </button>
         @endif
     </div>
 </div>
@@ -48,9 +103,9 @@
         <h6 class="m-0 font-weight-bold text-primary">Filter Clearances</h6>
     </div>
     <div class="card-body">
-        <form method="GET" action="{{ route('admin.clearances.index') }}" class="row g-3">
+        <form method="GET" action="{{ route('admin.clearances.index') }}" class="row g-3 align-items-end clearances-filter-form">
             <div class="col-md-3">
-                <select name="status" class="form-select">
+                <select name="status" class="form-control">
                     <option value="">All Status</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
@@ -62,10 +117,10 @@
                        placeholder="Search by student name..." value="{{ request('search') }}">
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                <button type="submit" class="btn btn-primary w-100 clearances-filter-action">Filter</button>
             </div>
             <div class="col-md-2">
-                <a href="{{ route('admin.clearances.index') }}" class="btn btn-secondary w-100">Reset</a>
+                <a href="{{ route('admin.clearances.index') }}" class="btn btn-secondary w-100 clearances-filter-action">Reset</a>
             </div>
         </form>
     </div>
@@ -145,7 +200,7 @@
                                                         <div><small class="text-muted">{{ $item->location }}</small></div>
                                                     @endif
                                                 </div>
-                                                <span class="badge bg-{{ $item->status === 'approved' ? 'success' : 'secondary' }}">
+                                                <span class="badge bg-{{ $item->status === 'approved' ? 'status-60' : 'status-30' }}">
                                                     {{ ucfirst($item->status) }}
                                                 </span>
                                             </div>
@@ -168,9 +223,9 @@
                         <td>
                             @php
                                 $statusClass = [
-                                    'approved' => 'success',
-                                    'rejected' => 'danger',
-                                    'pending' => 'warning'
+                                    'approved' => 'status-60',
+                                    'rejected' => 'status-10',
+                                    'pending' => 'status-30'
                                 ][$clearance->status];
                             @endphp
                             <span class="badge bg-{{ $statusClass }} fs-6">
@@ -259,6 +314,35 @@
         </div>
     </div>
 </div>
+
+<!-- Export Preview Modal -->
+@if($canExportClearance)
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>You are about to export clearance data based on your current filters.</p>
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item"><strong>Status:</strong> {{ request('status') ? ucfirst(request('status')) : 'All' }}</li>
+                    <li class="list-group-item"><strong>Search:</strong> {{ request('search') ? request('search') : 'None' }}</li>
+                    <li class="list-group-item"><strong>Total Records:</strong> {{ $clearances->total() }}</li>
+                </ul>
+                <p class="mb-0">Do you want to proceed with the export?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{{ route('admin.clearances.export', request()->all()) }}" class="btn btn-success" onclick="document.getElementById('exportModal').querySelector('.btn-close').click();">
+                    <i class="fas fa-download"></i> Confirm Export
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 @push('scripts')
 <script>

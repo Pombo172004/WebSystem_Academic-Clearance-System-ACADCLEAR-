@@ -19,8 +19,8 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">University *</label>
-                    <select name="tenant_id" class="form-select @error('tenant_id') is-invalid @enderror" required>
+                    <label for="subscription-tenant" class="form-label">University *</label>
+                    <select id="subscription-tenant" name="tenant_id" class="form-select @error('tenant_id') is-invalid @enderror" required>
                         <option value="">Select University</option>
                         @foreach($tenants as $tenant)
                             <option value="{{ $tenant->id }}" {{ old('tenant_id') == $tenant->id ? 'selected' : '' }}>
@@ -34,8 +34,8 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Plan *</label>
-                    <select name="plan_id" class="form-select @error('plan_id') is-invalid @enderror" required>
+                    <label for="subscription-plan" class="form-label">Plan *</label>
+                    <select id="subscription-plan" name="plan_id" class="form-select @error('plan_id') is-invalid @enderror" required>
                         <option value="">Select Plan</option>
                         @foreach($plans as $plan)
                             <option value="{{ $plan->id }}" {{ old('plan_id') == $plan->id ? 'selected' : '' }}>
@@ -52,8 +52,8 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Start Date *</label>
-                    <input type="date" name="starts_at" class="form-control @error('starts_at') is-invalid @enderror" 
+                    <label for="subscription-starts-at" class="form-label">Start Date *</label>
+                    <input type="date" id="subscription-starts-at" name="starts_at" class="form-control @error('starts_at') is-invalid @enderror"
                            value="{{ old('starts_at', date('Y-m-d')) }}" required>
                     @error('starts_at')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -61,8 +61,8 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">End Date *</label>
-                    <input type="date" name="ends_at" class="form-control @error('ends_at') is-invalid @enderror" 
+                    <label for="subscription-ends-at" class="form-label">End Date *</label>
+                    <input type="date" id="subscription-ends-at" name="ends_at" class="form-control @error('ends_at') is-invalid @enderror"
                            value="{{ old('ends_at', date('Y-m-d', strtotime('+1 month'))) }}" required>
                     @error('ends_at')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -72,8 +72,8 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Amount Paid (₱) *</label>
-                    <input type="number" name="amount_paid" class="form-control @error('amount_paid') is-invalid @enderror" 
+                    <label for="subscription-amount-paid" class="form-label">Amount Paid (₱) *</label>
+                    <input type="number" id="subscription-amount-paid" name="amount_paid" class="form-control @error('amount_paid') is-invalid @enderror"
                            value="{{ old('amount_paid') }}" required step="0.01">
                     @error('amount_paid')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -81,8 +81,8 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Payment Method *</label>
-                    <select name="payment_method" class="form-select @error('payment_method') is-invalid @enderror" required>
+                    <label for="subscription-payment-method" class="form-label">Payment Method *</label>
+                    <select id="subscription-payment-method" name="payment_method" class="form-select @error('payment_method') is-invalid @enderror" required>
                         <option value="">Select Payment Method</option>
                         <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
                         <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
@@ -98,13 +98,13 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Transaction ID</label>
-                    <input type="text" name="transaction_id" class="form-control" value="{{ old('transaction_id') }}">
+                    <label for="subscription-transaction-id" class="form-label">Transaction ID</label>
+                    <input type="text" id="subscription-transaction-id" name="transaction_id" class="form-control" value="{{ old('transaction_id') }}" autocomplete="off">
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Notes</label>
-                    <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
+                    <label for="subscription-notes" class="form-label">Notes</label>
+                    <textarea id="subscription-notes" name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                 </div>
             </div>
 

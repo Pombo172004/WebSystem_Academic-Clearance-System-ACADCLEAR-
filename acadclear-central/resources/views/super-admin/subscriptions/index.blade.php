@@ -73,8 +73,8 @@
                                     </div>
                                     <div class="modal-body">
                                         <div class="form-group">
-                                            <label>Plan</label>
-                                            <select name="plan_id" class="form-control" required>
+                                            <label for="renew-plan-{{ $sub->id }}">Plan</label>
+                                            <select id="renew-plan-{{ $sub->id }}" name="plan_id" class="form-control" required>
                                                 @foreach(App\Models\Plan::all() as $plan)
                                                     <option value="{{ $plan->id }}" {{ $sub->plan_id == $plan->id ? 'selected' : '' }}>
                                                         {{ $plan->name }} - ₱{{ number_format($plan->price, 2) }}/month
@@ -84,8 +84,8 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Months</label>
-                                            <select name="months" class="form-control" required>
+                                            <label for="renew-months-{{ $sub->id }}">Months</label>
+                                            <select id="renew-months-{{ $sub->id }}" name="months" class="form-control" required>
                                                 <option value="1">1 Month</option>
                                                 <option value="3">3 Months</option>
                                                 <option value="6">6 Months</option>
@@ -94,13 +94,13 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Amount Paid (₱)</label>
-                                            <input type="number" name="amount_paid" class="form-control" min="0" step="0.01" value="{{ $sub->plan->price }}" required>
+                                            <label for="renew-amount-{{ $sub->id }}">Amount Paid (₱)</label>
+                                            <input type="number" id="renew-amount-{{ $sub->id }}" name="amount_paid" class="form-control" min="0" step="0.01" value="{{ $sub->plan->price }}" required>
                                         </div>
 
                                         <div class="form-group mb-0">
-                                            <label>Payment Method</label>
-                                            <select name="payment_method" class="form-control" required>
+                                            <label for="renew-payment-method-{{ $sub->id }}">Payment Method</label>
+                                            <select id="renew-payment-method-{{ $sub->id }}" name="payment_method" class="form-control" required>
                                                 <option value="cash">Cash</option>
                                                 <option value="bank_transfer">Bank Transfer</option>
                                                 <option value="credit_card">Credit Card</option>

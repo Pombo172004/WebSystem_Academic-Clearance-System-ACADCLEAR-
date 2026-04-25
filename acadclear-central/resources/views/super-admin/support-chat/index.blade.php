@@ -52,6 +52,7 @@
 
                     <form id="chatForm" class="d-flex" autocomplete="off">
                         @csrf
+                        <label for="chatInput" class="visually-hidden">Reply message</label>
                         <input type="text" class="form-control mr-2" id="chatInput" maxlength="2000" placeholder="Type your reply..." required>
                         <button type="submit" class="btn btn-primary">Send</button>
                     </form>

@@ -47,7 +47,8 @@
     <div class="card-header py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
         <h6 class="m-0 font-weight-bold text-primary">Plan Request Queue</h6>
         <form method="GET" class="mt-3 mt-md-0">
-            <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+            <label for="plan-request-status-filter" class="visually-hidden">Filter plan requests by status</label>
+            <select id="plan-request-status-filter" name="status" class="form-control form-control-sm" onchange="this.form.submit()">
                 <option value="">All statuses</option>
                 <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
                 <option value="approved" {{ $status === 'approved' ? 'selected' : '' }}>Approved</option>
@@ -141,8 +142,9 @@
                                                 </p>
 
                                                 <div class="mb-3">
-                                                    <label class="form-label">Domain <span class="text-danger">*</span></label>
+                                                    <label for="approve-domain-{{ $planRequest->id }}" class="form-label">Domain <span class="text-danger">*</span></label>
                                                     <input
+                                                        id="approve-domain-{{ $planRequest->id }}"
                                                         type="text"
                                                         name="domain"
                                                         class="form-control"

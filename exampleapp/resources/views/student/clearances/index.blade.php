@@ -349,19 +349,19 @@
 
         <div class="row text-center">
             <div class="col-md-4 mb-3 mb-md-0">
-                <div class="border rounded p-3 bg-success text-white h-100">
+                <div class="border rounded p-3 bg-status-60 text-white h-100">
                     <h3 class="mb-0">{{ $stats['approved'] }}</h3>
                     <small>Approved</small>
                 </div>
             </div>
             <div class="col-md-4 mb-3 mb-md-0">
-                <div class="border rounded p-3 bg-warning text-white h-100">
+                <div class="border rounded p-3 bg-status-30 text-white h-100">
                     <h3 class="mb-0">{{ $stats['pending'] }}</h3>
                     <small>Pending</small>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="border rounded p-3 bg-danger text-white h-100">
+                <div class="border rounded p-3 bg-status-10 text-white h-100">
                     <h3 class="mb-0">{{ $stats['rejected'] }}</h3>
                     <small>Rejected</small>
                 </div>

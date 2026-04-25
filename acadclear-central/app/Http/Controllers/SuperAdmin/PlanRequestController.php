@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Mail\UniversityCredentialsMail;
 use App\Models\Plan;
 use App\Models\PlanRequest;
 use App\Models\Tenant;
 use App\Services\TenantDatabaseManager;
+use App\Services\UniversityCredentialsSender;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class PlanRequestController extends Controller
@@ -168,33 +166,23 @@ class PlanRequestController extends Controller
             return back()->with('error', 'Approval failed: ' . $e->getMessage());
         }
 
-        $mailMessage = 'Request approved and tenant created.';
+        $mailResult = app(UniversityCredentialsSender::class)->send([
+            'tenantName' => $tenant->name,
+            'adminEmail' => $adminEmail,
+            'adminPassword' => $adminPassword,
+            'planName' => $plan->name,
+            'amountPaid' => (float) $subscription->amount_paid,
+            'startsAt' => $subscription->starts_at,
+            'endsAt' => $subscription->ends_at,
+            'paymentMethod' => (string) $subscription->payment_method,
+            'domain' => $tenant->domain,
+            'loginUrl' => $loginUrl,
+        ], [
+            'plan_request_id' => $planRequest->id,
+            'tenant_id' => $tenant->id,
+        ]);
 
-        try {
-            Mail::to($adminEmail)->send(new UniversityCredentialsMail(
-                tenantName: $tenant->name,
-                adminEmail: $adminEmail,
-                adminPassword: $adminPassword,
-                planName: $plan->name,
-                amountPaid: (float) $subscription->amount_paid,
-                startsAt: $subscription->starts_at,
-                endsAt: $subscription->ends_at,
-                paymentMethod: (string) $subscription->payment_method,
-                domain: $tenant->domain,
-                loginUrl: $loginUrl
-            ));
-
-            $mailMessage .= ' Credentials email sent to ' . $adminEmail . '.';
-        } catch (\Throwable $mailError) {
-            Log::error('Failed sending plan-request approval credentials email', [
-                'plan_request_id' => $planRequest->id,
-                'tenant_id' => $tenant->id,
-                'email' => $adminEmail,
-                'error' => $mailError->getMessage(),
-            ]);
-
-            $mailMessage .= ' Tenant is created, but email sending failed.';
-        }
+        $mailMessage = 'Request approved and tenant created. ' . $mailResult['message'];
 
         return back()->with('success', $mailMessage);
     }

@@ -4,12 +4,10 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\Plan;
-use App\Mail\UniversityCredentialsMail;
 use App\Services\TenantDatabaseManager;
+use App\Services\UniversityCredentialsSender;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class TenantController extends Controller
@@ -106,32 +104,25 @@ class TenantController extends Controller
                 ->with('error', 'University was not created: ' . $e->getMessage());
         }
 
-        $mailMessage = 'University created successfully. Admin login: ' . $validated['admin_email'];
+        $mailResult = app(UniversityCredentialsSender::class)->send([
+            'tenantName' => $tenant->name,
+            'adminEmail' => $validated['admin_email'],
+            'adminPassword' => $validated['admin_password'],
+            'planName' => $plan->name,
+            'amountPaid' => (float) $subscription->amount_paid,
+            'startsAt' => $subscription->starts_at,
+            'endsAt' => $subscription->ends_at,
+            'paymentMethod' => (string) $subscription->payment_method,
+            'domain' => $tenant->domain,
+            'loginUrl' => $loginUrl,
+        ], [
+            'tenant_id' => $tenant->id,
+        ]);
 
-        try {
-            Mail::to($validated['admin_email'])->send(new UniversityCredentialsMail(
-                tenantName: $tenant->name,
-                adminEmail: $validated['admin_email'],
-                adminPassword: $validated['admin_password'],
-                planName: $plan->name,
-                amountPaid: (float) $subscription->amount_paid,
-                startsAt: $subscription->starts_at,
-                endsAt: $subscription->ends_at,
-                paymentMethod: (string) $subscription->payment_method,
-                domain: $tenant->domain,
-                loginUrl: $loginUrl
-            ));
-
-            $mailMessage .= ' Credentials email sent.';
-        } catch (\Throwable $mailError) {
-            Log::error('University credentials email failed to send.', [
-                'tenant_id' => $tenant->id,
-                'admin_email' => $validated['admin_email'],
-                'error' => $mailError->getMessage(),
-            ]);
-
-            $mailMessage .= ' University created, but email was not sent. Check mail configuration.';
-        }
+        $mailMessage = 'University created successfully. Admin login: '
+            . $validated['admin_email']
+            . '. '
+            . $mailResult['message'];
 
         return redirect()->route('super-admin.tenants.index')
             ->with('success', $mailMessage);

@@ -31,27 +31,20 @@
     <div class="card-header py-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h6 class="m-0 font-weight-bold text-primary mb-0">All Colleges</h6>
         <form action="{{ route('admin.colleges.index') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2">
-            <div class="input-group input-group-sm" style="max-width: 220px;">
+            <div class="input-group" style="max-width: 340px;">
                 <input type="text" 
                        name="search" 
                        class="form-control" 
                        placeholder="Search by name..." 
                        value="{{ request('search') }}">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn" type="submit"
+                            style="background-color: var(--tenant-sidebar-bg); border-color: var(--tenant-sidebar-bg); color: #fff;">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
             </div>
-            <select name="sort" class="form-control form-control-sm" style="width: auto;" onchange="this.form.submit()">
-                <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Name (A-Z)</option>
-                <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>Name (Z-A)</option>
-                <option value="departments_desc" {{ request('sort') === 'departments_desc' ? 'selected' : '' }}>Most departments</option>
-                <option value="departments_asc" {{ request('sort') === 'departments_asc' ? 'selected' : '' }}>Fewest departments</option>
-                <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Newest first</option>
-                <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Oldest first</option>
-            </select>
-            @if(request()->hasAny(['search', 'sort']))
+            @if(request()->hasAny(['search']))
                 <a href="{{ route('admin.colleges.index') }}" class="btn btn-sm btn-outline-secondary">Clear</a>
             @endif
         </form>

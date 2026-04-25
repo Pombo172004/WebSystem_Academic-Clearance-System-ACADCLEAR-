@@ -62,6 +62,7 @@
                         $recaptchaSiteKey = config('services.recaptcha.site_key');
                     @endphp
                     <div>
+                        <label for="email" class="sr-only">{{ __('Email') }}</label>
                         <x-text-input
                             id="email"
                             class="block w-full rounded-xl border-0 py-3 px-4 transition"
@@ -78,6 +79,7 @@
                     </div>
 
                     <div>
+                        <label for="password" class="sr-only">{{ __('Password') }}</label>
                         <x-text-input
                             id="password"
                             class="block w-full rounded-xl border-0 py-3 px-4 transition"

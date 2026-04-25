@@ -20,19 +20,19 @@
             {{-- Basic Info --}}
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Plan Name *</label>
-                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
-                           value="{{ old('name') }}" required placeholder="e.g., Professional, Premium">
+                    <label for="plan-name" class="form-label">Plan Name *</label>
+                    <input type="text" id="plan-name" name="name" class="form-control @error('name') is-invalid @enderror"
+                           value="{{ old('name') }}" required placeholder="e.g., Professional, Premium" autocomplete="off">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Slug *</label>
-                    <input type="text" name="slug" class="form-control @error('slug') is-invalid @enderror"
+                    <label for="plan-slug" class="form-label">Slug *</label>
+                    <input type="text" id="plan-slug" name="slug" class="form-control @error('slug') is-invalid @enderror"
                            value="{{ old('slug') }}" required placeholder="e.g., professional"
-                           oninput="this.value=this.value.toLowerCase().replace(/\s+/g,'-')">
+                           oninput="this.value=this.value.toLowerCase().replace(/\s+/g,'-')" autocomplete="off">
                     @error('slug')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -42,9 +42,9 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Price (₱) *</label>
-                    <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
-                           value="{{ old('price') }}" required step="0.01" min="0">
+                    <label for="plan-price" class="form-label">Price (₱) *</label>
+                    <input type="number" id="plan-price" name="price" class="form-control @error('price') is-invalid @enderror"
+                           value="{{ old('price') }}" required step="0.01" min="0" autocomplete="off">
                     @error('price')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -52,9 +52,9 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Max Students</label>
-                    <input type="number" name="max_students" class="form-control @error('max_students') is-invalid @enderror"
-                           value="{{ old('max_students') }}" placeholder="Leave empty for unlimited" min="0">
+                    <label for="plan-max-students" class="form-label">Max Students</label>
+                    <input type="number" id="plan-max-students" name="max_students" class="form-control @error('max_students') is-invalid @enderror"
+                           value="{{ old('max_students') }}" placeholder="Leave empty for unlimited" min="0" autocomplete="off">
                     @error('max_students')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

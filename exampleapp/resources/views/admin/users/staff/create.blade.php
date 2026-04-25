@@ -9,7 +9,7 @@
         <h1 class="h3 mb-1 text-gray-800">Add New Staff</h1>
         <p class="mb-0 text-muted">Create a staff account and assign the correct college and department. Password is auto-generated and sent via email.</p>
     </div>
-    <a href="{{ route('admin.staff.index') }}" class="btn btn-outline-secondary btn-sm mt-3 mt-sm-0">
+    <a href="{{ route('admin.staff.index') }}" class="btn btn-back btn-sm mt-3 mt-sm-0">
         <i class="fas fa-arrow-left mr-1"></i> Back to List
     </a>
 </div>
@@ -147,8 +147,8 @@
                         <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
                             <label class="font-weight-bold small text-uppercase text-gray-700 mb-0">Module Access</label>
                             <div class="mt-2 mt-sm-0">
-                                <button type="button" class="btn btn-sm btn-outline-primary mr-1" id="selectAllModulesCreate">Select All</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearAllModulesCreate">Clear</button>
+                                <button type="button" class="btn btn-sm btn-module-select-all mr-1" id="selectAllModulesCreate">Select All</button>
+                                <button type="button" class="btn btn-sm btn-module-clear" id="clearAllModulesCreate">Clear</button>
                             </div>
                         </div>
                         <div class="border rounded p-3 bg-light">

@@ -17,7 +17,7 @@
 		</div>
 	</div>
 	<div class="col-12 col-lg-4 text-lg-right mt-3 mt-lg-0">
-		<a href="{{ route('admin.clearances.index') }}" class="btn btn-outline-secondary">
+		<a href="{{ route('admin.clearances.index') }}" class="btn btn-back">
 			<i class="fas fa-arrow-left mr-1"></i> Back to Clearances
 		</a>
 	</div>

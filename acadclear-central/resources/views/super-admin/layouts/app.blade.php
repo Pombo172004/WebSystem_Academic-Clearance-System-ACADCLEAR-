@@ -169,6 +169,21 @@
             color: #FFFFFF !important;
         }
 
+        .btn-back {
+            background-color: #FFFFFF !important;
+            border-color: #5B88B2 !important;
+            color: #5B88B2 !important;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+
+        .btn-back:hover,
+        .btn-back:focus {
+            background-color: rgba(91, 136, 178, 0.12) !important;
+            border-color: #5B88B2 !important;
+            color: #5B88B2 !important;
+            box-shadow: 0 0 0 0.2rem rgba(91, 136, 178, 0.18) !important;
+        }
+
         /* ─── Misc fixes ─────────────────────────────────── */
         .text-gray-800 {
             color: #1B1B1B !important;
@@ -275,11 +290,18 @@
         }
 
         .dark-mode .btn-light,
+        .dark-mode .btn-back,
         .dark-mode .btn-outline-secondary,
         .dark-mode .btn-secondary {
             background-color: #374151;
             border-color: #4b5563;
             color: #e5e7eb;
+        }
+
+        .dark-mode .btn-back {
+            background-color: #FFFFFF !important;
+            border-color: #5B88B2 !important;
+            color: #5B88B2 !important;
         }
 
         .theme-toggle-btn {
