@@ -23,7 +23,7 @@ class UserController extends Controller
     public function students()
     {
         $students = User::where('role', 'student')
-            ->with('college')
+            ->with(['college', 'department', 'clearances'])
             ->latest()
             ->paginate(15);
         
@@ -139,14 +139,17 @@ class UserController extends Controller
     /**
      * Display list of staff
      */
-    public function staff()
+    public function staff(Request $request)
     {
         $staff = User::where('role', 'staff')
             ->with(['college', 'department'])
             ->latest()
             ->paginate(15);
-        
-        return view('admin.users.staff.index', compact('staff'));
+
+        $colleges = College::orderBy('name')->get(['id', 'name']);
+        $departments = Department::orderBy('name')->get(['id', 'college_id', 'name']);
+
+        return view('admin.users.staff.index', compact('staff', 'colleges', 'departments'));
     }
 
     /**
@@ -167,22 +170,47 @@ class UserController extends Controller
     public function storeStaff(Request $request)
     {
         $this->ensureStaffPermissionsColumnExists();
+        $selectedOfficeRole = (string) $request->input('office_role');
+        $requiresAcademicAssignment = blank($selectedOfficeRole);
+        $assignmentScope = User::staffAssignmentScope($selectedOfficeRole);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'college_id' => 'required|exists:colleges,id',
-            'department_id' => 'required|exists:departments,id',
-            'office_role' => ['required', Rule::in(array_merge(array_keys(User::officeRoles()), ['custom']))],
+            'college_id' => [
+                Rule::requiredIf($assignmentScope === 'academic' || $requiresAcademicAssignment),
+                'nullable',
+                'exists:colleges,id',
+            ],
+            'department_id' => [
+                Rule::requiredIf($assignmentScope === 'academic' || $requiresAcademicAssignment),
+                'nullable',
+                Rule::exists('departments', 'id')->where(function ($query) use ($request) {
+                    $collegeId = $request->input('college_id');
+
+                    if ($collegeId) {
+                        $query->where('college_id', $collegeId);
+                    }
+                }),
+            ],
+            'office_role' => [
+                'nullable',
+                Rule::requiredIf(blank($request->input('college_id')) && blank($request->input('department_id'))),
+                Rule::in(array_merge(array_keys(User::officeRoles()), ['custom'])),
+            ],
             'custom_office_role' => ['nullable', 'required_if:office_role,custom', 'string', 'max:255'],
             'modules' => ['nullable', 'array'],
             'modules.*' => ['string', Rule::in(array_keys(config('rbac.modules', [])))],
         ]);
 
-        $validated['office_role'] = $this->normalizeOfficeRole(
-            $validated['office_role'],
-            $validated['custom_office_role'] ?? null
-        );
+        $validated['office_role'] = !empty($validated['office_role'])
+            ? $this->normalizeOfficeRole(
+                $validated['office_role'],
+                $validated['custom_office_role'] ?? null
+            )
+            : null;
+
+        $validated = $this->normalizeStaffAssignment($validated, $assignmentScope);
 
         $plainPassword = Str::password(12, letters: true, numbers: true, symbols: false, spaces: false);
         $validated['role'] = 'staff';
@@ -241,22 +269,47 @@ class UserController extends Controller
         }
 
         $this->ensureStaffPermissionsColumnExists();
+        $selectedOfficeRole = (string) $request->input('office_role');
+        $requiresAcademicAssignment = blank($selectedOfficeRole);
+        $assignmentScope = User::staffAssignmentScope($selectedOfficeRole);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'college_id' => 'required|exists:colleges,id',
-            'department_id' => 'required|exists:departments,id',
-            'office_role' => ['required', Rule::in(array_merge(array_keys(User::officeRoles()), ['custom']))],
+            'college_id' => [
+                Rule::requiredIf($assignmentScope === 'academic' || $requiresAcademicAssignment),
+                'nullable',
+                'exists:colleges,id',
+            ],
+            'department_id' => [
+                Rule::requiredIf($assignmentScope === 'academic' || $requiresAcademicAssignment),
+                'nullable',
+                Rule::exists('departments', 'id')->where(function ($query) use ($request) {
+                    $collegeId = $request->input('college_id');
+
+                    if ($collegeId) {
+                        $query->where('college_id', $collegeId);
+                    }
+                }),
+            ],
+            'office_role' => [
+                'nullable',
+                Rule::requiredIf(blank($request->input('college_id')) && blank($request->input('department_id'))),
+                Rule::in(array_merge(array_keys(User::officeRoles()), ['custom'])),
+            ],
             'custom_office_role' => ['nullable', 'required_if:office_role,custom', 'string', 'max:255'],
             'modules' => ['nullable', 'array'],
             'modules.*' => ['string', Rule::in(array_keys(config('rbac.modules', [])))],
         ]);
 
-        $validated['office_role'] = $this->normalizeOfficeRole(
-            $validated['office_role'],
-            $validated['custom_office_role'] ?? null
-        );
+        $validated['office_role'] = !empty($validated['office_role'])
+            ? $this->normalizeOfficeRole(
+                $validated['office_role'],
+                $validated['custom_office_role'] ?? null
+            )
+            : null;
+
+        $validated = $this->normalizeStaffAssignment($validated, $assignmentScope);
 
 
         $validated['permissions'] = $this->resolveStaffPermissions($validated['modules'] ?? []);
@@ -373,5 +426,28 @@ class UserController extends Controller
         }
 
         return $slug;
+    }
+
+    /**
+     * Normalize assignment fields according to the selected staff role scope.
+     *
+     * @param array<string, mixed> $validated
+     * @return array<string, mixed>
+     */
+    private function normalizeStaffAssignment(array $validated, string $assignmentScope): array
+    {
+        if ($assignmentScope === 'office') {
+            $validated['college_id'] = null;
+            $validated['department_id'] = null;
+
+            return $validated;
+        }
+
+        if ($assignmentScope === 'hybrid') {
+            $validated['college_id'] = $validated['college_id'] ?? null;
+            $validated['department_id'] = $validated['department_id'] ?? null;
+        }
+
+        return $validated;
     }
 }

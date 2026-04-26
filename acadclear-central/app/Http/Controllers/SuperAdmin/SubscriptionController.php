@@ -21,10 +21,18 @@ class SubscriptionController extends Controller
             $query->where('tenant_id', $request->tenant_id);
         }
 
-        $subscriptions = $query->latest()->paginate(15);
+        $subscriptions = $query->latest()->paginate(5);
+        $expiring = Subscription::with(['tenant', 'plan'])
+            ->where('status', 'active')
+            ->where('ends_at', '<=', now()->addDays(30))
+            ->where('ends_at', '>=', now())
+            ->orderBy('ends_at')
+            ->paginate(5, ['*'], 'expiring_page')
+            ->withQueryString();
+
         $tenants = Tenant::all();
         
-        return view('super-admin.subscriptions.index', compact('subscriptions', 'tenants'));
+        return view('super-admin.subscriptions.index', compact('subscriptions', 'expiring', 'tenants'));
     }
 
     public function create()

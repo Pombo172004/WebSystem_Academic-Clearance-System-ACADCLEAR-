@@ -8,22 +8,53 @@ use App\Models\College;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class ClearanceController extends Controller
 {
+    private ?bool $supportsApprovedByName = null;
+
     private function isTenantAdmin(User $user): bool
     {
         return $user->role === 'school_admin';
     }
 
+    private function canPersistApprovedByName(): bool
+    {
+        if ($this->supportsApprovedByName !== null) {
+            return $this->supportsApprovedByName;
+        }
+
+        $this->supportsApprovedByName = Schema::hasColumn('clearance_checklist_items', 'approved_by_name');
+
+        return $this->supportsApprovedByName;
+    }
+
     private function canAccessClearance(User $user, Clearance $clearance): bool
     {
         if ($this->isTenantAdmin($user)) {
-            return $clearance->student()->where('college_id', $user->college_id)->exists();
+            return true;
         }
 
-        return $clearance->department_id === $user->department_id;
+        if (!$user->office_role) {
+            return false;
+        }
+
+        $hasAssignedChecklist = $clearance->checklistItems()
+            ->where('office_role', $user->office_role)
+            ->exists();
+
+        if (!$hasAssignedChecklist) {
+            return false;
+        }
+
+        // Office-wide roles (e.g., Registrar, Librarian) can sign across departments.
+        if (blank($user->department_id)) {
+            return true;
+        }
+
+        return (int) $clearance->department_id === (int) $user->department_id;
     }
 
     /**
@@ -209,6 +240,7 @@ class ClearanceController extends Controller
     public function updateChecklistItem(Request $request, Clearance $clearance, ClearanceChecklistItem $item)
     {
         $actor = auth()->user();
+        $canPersistApprovedByName = $this->canPersistApprovedByName();
 
         if ($item->clearance_id !== $clearance->id || !$this->canAccessClearance($actor, $clearance)) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -220,12 +252,33 @@ class ClearanceController extends Controller
 
         $validated = $request->validate([
             'status' => ['required', Rule::in(['pending', 'approved'])],
+            'approved_by_name' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf($canPersistApprovedByName && $request->input('status') === 'approved'),
+            ],
         ]);
 
-        $item->update([
+        $signerName = trim((string) ($validated['approved_by_name'] ?? $actor->name));
+
+        $payload = [
             'status' => $validated['status'],
             'approved_at' => $validated['status'] === 'approved' ? now() : null,
-        ]);
+        ];
+
+        if ($validated['status'] === 'approved') {
+            // Keep signer visible in legacy tenant schemas that don't yet have approved_by_name.
+            $payload['contact_person'] = $signerName;
+        }
+
+        if ($canPersistApprovedByName) {
+            $payload['approved_by_name'] = $validated['status'] === 'approved'
+                ? $signerName
+                : null;
+        }
+
+        $item->update($payload);
 
         $this->recalculateClearanceStatus($clearance);
 
@@ -250,14 +303,15 @@ class ClearanceController extends Controller
         $query = Clearance::with(['student', 'department']);
 
         if ($isTenantAdmin) {
-            $query->whereHas('student', function ($studentQuery) use ($actor) {
-                $studentQuery->where('college_id', $actor->college_id);
-            });
+            // Show all recent clearances for the tenant admin.
         } else {
-            $query->where('department_id', $actor->department_id)
-                ->whereHas('checklistItems', function ($itemQuery) use ($actor) {
+            $query->whereHas('checklistItems', function ($itemQuery) use ($actor) {
                     $itemQuery->where('office_role', $actor->office_role);
                 });
+
+            if (filled($actor->department_id)) {
+                $query->where('department_id', $actor->department_id);
+            }
         }
 
         // Filter by status
@@ -273,8 +327,17 @@ class ClearanceController extends Controller
         }
 
         // Sort
+        $allowedSorts = ['created_at', 'updated_at', 'status'];
         $sort = $request->get('sort', 'created_at');
-        $order = $request->get('order', 'desc');
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'created_at';
+        }
+
+        $order = strtolower((string) $request->get('order', 'desc'));
+        if (!in_array($order, ['asc', 'desc'], true)) {
+            $order = 'desc';
+        }
+
         $query->orderBy($sort, $order);
 
         $clearances = $query
@@ -302,21 +365,35 @@ class ClearanceController extends Controller
         }
 
         if ($isTenantAdmin) {
-            $affected = $clearance->checklistItems()->update([
+            $payload = [
                 'status' => 'approved',
                 'approved_at' => now(),
-            ]);
+                'contact_person' => $actor->name,
+            ];
+
+            if ($this->canPersistApprovedByName()) {
+                $payload['approved_by_name'] = $actor->name;
+            }
+
+            $affected = $clearance->checklistItems()->update($payload);
         } else {
             if (!$actor->office_role) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
+            $payload = [
+                'status' => 'approved',
+                'approved_at' => now(),
+                'contact_person' => $actor->name,
+            ];
+
+            if ($this->canPersistApprovedByName()) {
+                $payload['approved_by_name'] = $actor->name;
+            }
+
             $affected = $clearance->checklistItems()
                 ->where('office_role', $actor->office_role)
-                ->update([
-                    'status' => 'approved',
-                    'approved_at' => now(),
-                ]);
+                ->update($payload);
         }
 
         if ($affected === 0) {
@@ -361,10 +438,16 @@ class ClearanceController extends Controller
             $checklistQuery->where('office_role', $actor->office_role);
         }
 
-        $checklistQuery->update([
+        $payload = [
             'status' => 'pending',
             'approved_at' => null,
-        ]);
+        ];
+
+        if ($this->canPersistApprovedByName()) {
+            $payload['approved_by_name'] = null;
+        }
+
+        $checklistQuery->update($payload);
 
         $clearance->update([
             'status' => 'rejected',
@@ -405,10 +488,13 @@ class ClearanceController extends Controller
                 $studentQuery->where('college_id', $actor->college_id);
             });
         } else {
-            $query->where('department_id', $actor->department_id)
-                ->whereHas('checklistItems', function ($itemQuery) use ($actor) {
+            $query->whereHas('checklistItems', function ($itemQuery) use ($actor) {
                     $itemQuery->where('office_role', $actor->office_role);
                 });
+
+            if (filled($actor->department_id)) {
+                $query->where('department_id', $actor->department_id);
+            }
         }
 
         $clearances = $query->get();
@@ -420,10 +506,17 @@ class ClearanceController extends Controller
                 $checklistQuery->where('office_role', $actor->office_role);
             }
 
-            $affected = $checklistQuery->update([
+            $payload = [
                     'status' => 'approved',
                     'approved_at' => now(),
-                ]);
+                    'contact_person' => $actor->name,
+                ];
+
+            if ($this->canPersistApprovedByName()) {
+                $payload['approved_by_name'] = $actor->name;
+            }
+
+            $affected = $checklistQuery->update($payload);
 
             if ($affected > 0) {
                 $this->recalculateClearanceStatus($clearance);
@@ -456,10 +549,13 @@ class ClearanceController extends Controller
                 $studentQuery->where('college_id', $actor->college_id);
             });
         } else {
-            $query->where('department_id', $actor->department_id)
-                ->whereHas('checklistItems', function ($itemQuery) use ($actor) {
+            $query->whereHas('checklistItems', function ($itemQuery) use ($actor) {
                     $itemQuery->where('office_role', $actor->office_role);
                 });
+
+            if (filled($actor->department_id)) {
+                $query->where('department_id', $actor->department_id);
+            }
         }
 
         if ($request->has('status') && $request->status != '') {

@@ -1,5 +1,15 @@
 <?php
 
+$versionFromFile = '1.0.0';
+$versionFilePath = base_path('VERSION');
+
+if (is_file($versionFilePath)) {
+    $detectedVersion = trim((string) file_get_contents($versionFilePath));
+    if ($detectedVersion !== '') {
+        $versionFromFile = $detectedVersion;
+    }
+}
+
 return [
 
     /*
@@ -15,7 +25,7 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
-    'version' => env('APP_VERSION', '1.0.0'),
+    'version' => $versionFromFile,
 
     /*
     |--------------------------------------------------------------------------

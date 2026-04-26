@@ -274,6 +274,8 @@
 
             @if($user->role === 'school_admin')
                 @php
+                    $updateStatus = app(\App\Services\AppUpdateService::class)->getStatus();
+                    $hasPendingUpdate = (bool) data_get($updateStatus, 'has_update', false);
                     $canManageColleges = $user->hasPermission('tenant.colleges.manage');
                     $canManageDepartments = $user->hasPermission('tenant.departments.manage');
                     $canManageStudents = $user->hasPermission('tenant.students.manage');
@@ -366,6 +368,12 @@
                             <span>Export</span></a>
                     </li>
                 @endif
+
+                <li class="nav-item {{ request()->routeIs('admin.update.*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('admin.update.index') }}">
+                        <i class="fas fa-fw fa-sync-alt"></i>
+                        <span>Update @if($hasPendingUpdate)<span class="badge badge-warning ml-1">New</span>@endif</span></a>
+                </li>
 
                 <hr class="sidebar-divider">
 

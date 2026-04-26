@@ -27,7 +27,7 @@ class TenantController extends Controller
             $query->where('status', $request->status);
         }
 
-        $tenants = $query->with('activeSubscription.plan')->paginate(15);
+        $tenants = $query->with('activeSubscription.plan')->paginate(5);
         
         return view('super-admin.tenants.index', compact('tenants'));
     }

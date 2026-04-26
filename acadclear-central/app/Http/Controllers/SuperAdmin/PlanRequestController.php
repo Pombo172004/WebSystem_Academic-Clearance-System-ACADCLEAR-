@@ -23,7 +23,7 @@ class PlanRequestController extends Controller
         $planRequests = PlanRequest::query()
             ->when($status, fn ($query) => $query->where('status', $status))
             ->latest()
-            ->paginate(15)
+            ->paginate(5)
             ->withQueryString();
 
         $counts = [

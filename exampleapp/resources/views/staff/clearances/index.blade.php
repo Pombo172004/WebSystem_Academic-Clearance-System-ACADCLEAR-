@@ -8,11 +8,141 @@
     $canExportClearance = auth()->user()->hasPermission('tenant.clearances.export');
     $canUpdateClearance = auth()->user()->hasPermission('tenant.clearances.update');
 @endphp
+@push('styles')
+<style>
+    .clearance-page {
+        --panel-bg: rgba(18, 36, 59, 0.65);
+        --panel-border: rgba(138, 180, 248, 0.18);
+        --text-soft: #9bb4d3;
+        --accent: #32c8ff;
+    }
+
+    .clearance-page .page-title {
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #f5fbff;
+    }
+
+    .clearance-page .card {
+        background: linear-gradient(160deg, rgba(20, 41, 67, 0.9), var(--panel-bg));
+        border: 1px solid var(--panel-border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    .clearance-page .card-header {
+        border-bottom: 1px solid rgba(150, 180, 220, 0.16);
+        background: linear-gradient(90deg, rgba(11, 29, 52, 0.7), rgba(29, 52, 84, 0.52));
+    }
+
+    .clearance-page .card-header h6 {
+        color: #68dbff !important;
+        letter-spacing: 0.02em;
+    }
+
+    .clearance-page .filters-form .form-control,
+    .clearance-page .filters-form .btn {
+        min-height: 42px;
+        border-radius: 10px;
+    }
+
+    .clearance-page .table {
+        color: #eef5ff;
+        border-color: rgba(150, 180, 220, 0.2);
+        margin-bottom: 0;
+    }
+
+    .clearance-page .table thead th {
+        background: rgba(17, 37, 62, 0.96);
+        color: #dcecff;
+        font-weight: 600;
+        border-bottom-width: 1px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .clearance-page .table tbody td {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        vertical-align: top;
+    }
+
+    .clearance-page .table tbody tr:hover {
+        background: rgba(90, 180, 255, 0.08);
+    }
+
+    .clearance-page .muted-note {
+        color: var(--text-soft) !important;
+    }
+
+    .clearance-page .checklist-card {
+        margin-bottom: 0.65rem;
+        border: 1px solid rgba(132, 176, 232, 0.22);
+        border-radius: 10px;
+        padding: 0.65rem;
+        background: rgba(16, 31, 52, 0.75);
+    }
+
+    .clearance-page .checklist-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .clearance-page .checklist-card .badge {
+        min-width: 68px;
+        text-align: center;
+    }
+
+    .clearance-page .status-pill {
+        padding: 0.4rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    .clearance-page .remark-preview {
+        color: #f7b3b3;
+        cursor: help;
+    }
+
+    .clearance-page .approved-stamp-preview {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 54px;
+        min-width: 190px;
+        border: 3px solid #d03535;
+        border-radius: 6px;
+        color: #d03535;
+        font-weight: 800;
+        font-size: 1.05rem;
+        letter-spacing: 0.12em;
+        transform: rotate(-6deg);
+        text-transform: uppercase;
+        background: rgba(255, 245, 245, 0.8);
+        margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 992px) {
+        .clearance-page .d-sm-flex {
+            gap: 0.65rem;
+        }
+
+        .clearance-page .table-responsive {
+            border-radius: 10px;
+        }
+    }
+</style>
+@endpush
+
+<div class="clearance-page">
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Clearance Requests</h1>
-    <div>
+    <h1 class="h3 mb-0 page-title">Clearance Requests</h1>
+    <div class="d-flex flex-wrap align-items-center" style="gap: 0.5rem;">
         @if($canCreateClearance)
-            <a href="{{ route('admin.clearances.create') }}" class="btn btn-primary mr-2">
+            <a href="{{ route('admin.clearances.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add Clearance
             </a>
         @endif
@@ -43,14 +173,14 @@
 @endif
 
 <!-- Filter Form -->
-<div class="card shadow mb-4">
+<div class="card shadow mb-4 clearance-filters">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Filter Clearances</h6>
     </div>
     <div class="card-body">
-        <form method="GET" action="{{ route('admin.clearances.index') }}" class="row g-3">
+        <form method="GET" action="{{ route('admin.clearances.index') }}" class="row filters-form">
             <div class="col-md-3">
-                <select name="status" class="form-select">
+                <select name="status" class="form-control">
                     <option value="">All Status</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
@@ -77,11 +207,11 @@
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Bulk Actions</h6>
     </div>
-    <div class="card-body">
+    <div class="card-body d-flex flex-wrap align-items-center" style="gap: 0.75rem;">
         <button class="btn btn-success" onclick="bulkApprove()">
             <i class="fas fa-check-double"></i> Approve Selected
         </button>
-        <span class="text-muted ml-3">Select multiple clearances using checkboxes</span>
+        <span class="muted-note">Select multiple clearances using checkboxes</span>
     </div>
 </div>
 @endif
@@ -94,7 +224,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" width="100%" cellspacing="0">
+            <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                 <thead>
                     <tr>
                         @if($canUpdateClearance && (request('status') == 'pending' || !request('status')))
@@ -124,7 +254,7 @@
                         @endif
                         <td>
                             <strong>{{ $clearance->student?->name ?? 'N/A' }}</strong><br>
-                            <small class="text-muted">{{ $clearance->student?->email ?? 'N/A' }}</small>
+                            <small class="muted-note">{{ $clearance->student?->email ?? 'N/A' }}</small>
                         </td>
                         <td>{{ $clearance->department?->name ?? 'N/A' }}</td>
                         <td>{{ $clearance->clearance_title ?? 'Department Clearance' }}</td>
@@ -134,15 +264,18 @@
                             @if($clearance->checklistItems->isNotEmpty())
                                 <ul class="list-unstyled mb-0">
                                     @foreach($clearance->checklistItems as $item)
-                                        <li class="mb-2 border rounded p-2">
+                                        <li class="checklist-card">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <div>
                                                     <strong>{{ $item->item_name }}</strong>
                                                     @if($item->contact_person)
-                                                        <div><small class="text-muted">{{ $item->contact_person }}</small></div>
+                                                        <div><small class="muted-note">{{ $item->contact_person }}</small></div>
                                                     @endif
                                                     @if($item->location)
-                                                        <div><small class="text-muted">{{ $item->location }}</small></div>
+                                                        <div><small class="muted-note">{{ $item->location }}</small></div>
+                                                    @endif
+                                                    @if($item->approved_by_name)
+                                                        <div><small class="text-success">Signed by: {{ $item->approved_by_name }}</small></div>
                                                     @endif
                                                 </div>
                                                 <span class="badge bg-{{ $item->status === 'approved' ? 'success' : 'secondary' }}">
@@ -152,10 +285,23 @@
                                             @if($canUpdateClearance)
                                                 <form action="{{ route('admin.clearances.checklist.update', ['clearance' => $clearance->id, 'item' => $item->id]) }}" method="POST" class="mt-2">
                                                     @csrf
-                                                    <input type="hidden" name="status" value="{{ $item->status === 'approved' ? 'pending' : 'approved' }}">
-                                                    <button type="submit" class="btn btn-sm btn-outline-{{ $item->status === 'approved' ? 'warning' : 'success' }}">
-                                                        {{ $item->status === 'approved' ? 'Mark Pending' : 'Mark Approved' }}
-                                                    </button>
+                                                    @if($item->status === 'approved')
+                                                        <input type="hidden" name="status" value="pending">
+                                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                            Mark Pending
+                                                        </button>
+                                                    @else
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-outline-success"
+                                                            data-action="{{ route('admin.clearances.checklist.update', ['clearance' => $clearance->id, 'item' => $item->id]) }}"
+                                                            data-item-name="{{ $item->item_name }}"
+                                                            data-staff-name="{{ auth()->user()->name }}"
+                                                            onclick="openApproveItemModal(this)"
+                                                        >
+                                                            Mark Approved
+                                                        </button>
+                                                    @endif
                                                 </form>
                                             @endif
                                         </li>
@@ -173,17 +319,17 @@
                                     'pending' => 'warning'
                                 ][$clearance->status];
                             @endphp
-                            <span class="badge bg-{{ $statusClass }} fs-6">
+                            <span class="badge status-pill bg-{{ $statusClass }}">
                                 {{ ucfirst($clearance->status) }}
                             </span>
                         </td>
                         <td>
                             @if($clearance->remarks)
-                                <span class="text-danger" title="{{ $clearance->remarks }}">
+                                <span class="remark-preview" title="{{ $clearance->remarks }}">
                                     <i class="fas fa-comment"></i> View
                                 </span>
                             @else
-                                <span class="text-muted">—</span>
+                                <span class="muted-note">—</span>
                             @endif
                         </td>
                         <td>{{ $clearance->created_at->format('M d, Y') }}</td>
@@ -202,7 +348,7 @@
                                     <i class="fas fa-times"></i>
                                 </button>
                             @else
-                                <span class="text-muted">—</span>
+                                <span class="muted-note">—</span>
                             @endif
                         </td>
                     </tr>
@@ -259,10 +405,90 @@
         </div>
     </div>
 </div>
+</div>
+
+@if($canUpdateClearance)
+<div class="modal fade" id="approveItemModal" tabindex="-1" role="dialog" aria-labelledby="approveItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="approveItemForm" method="POST">
+                @csrf
+                <input type="hidden" name="status" value="approved">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveItemModalLabel">Approve Checklist Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="approved-stamp-preview">Approved</div>
+                    <p class="mb-2">
+                        You are approving: <strong id="approveItemName">Checklist Item</strong>
+                    </p>
+                    <div class="form-group mb-0">
+                        <label for="approved_by_name" class="font-weight-bold">Signer Name</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="approved_by_name"
+                            name="approved_by_name"
+                            maxlength="255"
+                            required
+                        >
+                        <small class="form-text text-muted">This name will be saved as the staff signatory for this approval.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check mr-1"></i> Confirm Approval
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
 
 @push('scripts')
 <script>
     @if($canUpdateClearance)
+    let approveItemModalRef = null;
+
+    function openApproveItemModal(button) {
+        const action = button.getAttribute('data-action');
+        const itemName = button.getAttribute('data-item-name') || 'Checklist Item';
+        const staffName = button.getAttribute('data-staff-name') || '';
+        const form = document.getElementById('approveItemForm');
+        const itemNameNode = document.getElementById('approveItemName');
+        const signerInput = document.getElementById('approved_by_name');
+        const modalNode = document.getElementById('approveItemModal');
+
+        if (!form || !modalNode) {
+            return;
+        }
+
+        form.setAttribute('action', action);
+        if (itemNameNode) {
+            itemNameNode.textContent = itemName;
+        }
+        if (signerInput) {
+            signerInput.value = staffName;
+            signerInput.focus();
+            signerInput.select();
+        }
+
+        if (window.bootstrap && window.bootstrap.Modal) {
+            approveItemModalRef = approveItemModalRef || new window.bootstrap.Modal(modalNode);
+            approveItemModalRef.show();
+            return;
+        }
+
+        if (window.jQuery) {
+            window.jQuery(modalNode).modal('show');
+        }
+    }
+
     // Select all checkboxes
     document.getElementById('selectAll')?.addEventListener('change', function() {
         var checkboxes = document.getElementsByClassName('clearance-checkbox');
