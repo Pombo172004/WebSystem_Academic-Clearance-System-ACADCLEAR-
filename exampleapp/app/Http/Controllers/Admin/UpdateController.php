@@ -15,9 +15,10 @@ class UpdateController extends Controller
     {
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $status = $this->appUpdateService->getStatus();
+        $forceRefresh = $request->boolean('refresh');
+        $status = $this->appUpdateService->getStatus($forceRefresh);
 
         return view('admin.update.index', [
             'currentVersion' => $status['current_version'] ?? config('app.version', '1.0.0'),
