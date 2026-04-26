@@ -53,7 +53,8 @@
             </nav>
 
             <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-                <h2 class="text-2xl font-bold text-white text-center mb-6">Create your account for free!</h2>
+                <h2 class="text-2xl font-bold text-white text-center mb-2">Student Registration</h2>
+                <p class="text-sm text-blue-100 text-center mb-6">Create your student account and choose your college and department.</p>
 
                 <x-auth-validation-errors class="mb-4 rounded-lg bg-red-500/20 text-red-200 px-4 py-3 text-sm" :errors="$errors" />
 
@@ -72,6 +73,35 @@
                             placeholder="Full name"
                         />
                         <x-input-error :messages="$errors->get('name')" class="mt-1.5 text-red-300 text-sm" />
+                    </div>
+
+                    <div>
+                        <select
+                            id="college_id"
+                            name="college_id"
+                            required
+                            class="block w-full rounded-xl border-0 bg-white text-slate-800 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                        >
+                            <option value="">Select college</option>
+                            @foreach($colleges as $college)
+                                <option value="{{ $college->id }}" @selected((string) old('college_id') === (string) $college->id)>
+                                    {{ $college->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('college_id')" class="mt-1.5 text-red-300 text-sm" />
+                    </div>
+
+                    <div>
+                        <select
+                            id="department_id"
+                            name="department_id"
+                            required
+                            class="block w-full rounded-xl border-0 bg-white text-slate-800 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                        >
+                            <option value="">Select department</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('department_id')" class="mt-1.5 text-red-300 text-sm" />
                     </div>
 
                     <div>
@@ -130,4 +160,50 @@
         </div>
     </div>
 </div>
+@php
+    $departmentsByCollege = $colleges->mapWithKeys(
+        fn ($college) => [
+            $college->id => $college->departments->map(
+                fn ($department) => ['id' => $department->id, 'name' => $department->name]
+            )->values(),
+        ]
+    );
+@endphp
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var collegeSelect = document.getElementById('college_id');
+        var departmentSelect = document.getElementById('department_id');
+        var departmentsByCollege = @json($departmentsByCollege);
+        var oldDepartmentId = @json(old('department_id'));
+
+        function renderDepartments(collegeId, selectedDepartmentId) {
+            departmentSelect.innerHTML = '<option value="">Select department</option>';
+
+            if (!collegeId || !departmentsByCollege[collegeId]) {
+                departmentSelect.disabled = true;
+                return;
+            }
+
+            departmentsByCollege[collegeId].forEach(function (department) {
+                var option = document.createElement('option');
+                option.value = department.id;
+                option.textContent = department.name;
+
+                if (String(selectedDepartmentId) === String(department.id)) {
+                    option.selected = true;
+                }
+
+                departmentSelect.appendChild(option);
+            });
+
+            departmentSelect.disabled = false;
+        }
+
+        collegeSelect.addEventListener('change', function () {
+            renderDepartments(this.value, null);
+        });
+
+        renderDepartments(collegeSelect.value, oldDepartmentId);
+    });
+</script>
 @endsection
