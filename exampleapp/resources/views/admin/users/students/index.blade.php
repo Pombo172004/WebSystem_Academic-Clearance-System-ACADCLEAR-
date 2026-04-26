@@ -28,6 +28,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>College</th>
+                        <th>Department</th>
                         <th>Clearances</th>
                         <th>Registered</th>
                         <th>Actions</th>
@@ -40,6 +41,7 @@
                         <td>{{ $student->name }}</td>
                         <td>{{ $student->email }}</td>
                         <td>{{ $student->college->name ?? 'N/A' }}</td>
+                        <td>{{ $student->department->name ?? 'N/A' }}</td>
                         <td>
                             @php
                                 $total = $student->clearances->count();
@@ -73,7 +75,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center">No students found.</td>
+                        <td colspan="8" class="text-center">No students found.</td>
                     </tr>
                     @endforelse
                 </tbody>

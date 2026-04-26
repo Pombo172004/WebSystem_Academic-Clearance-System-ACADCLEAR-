@@ -169,6 +169,14 @@ Route::middleware(['auth'])->group(function () {
             ->middleware('permission:tenant.reports.view')
             ->name('reports.data');
 
+        // App Update
+        Route::get('/update', [App\Http\Controllers\Admin\UpdateController::class, 'index'])
+            ->middleware('role:school_admin')
+            ->name('update.index');
+        Route::post('/update/install', [App\Http\Controllers\Admin\UpdateController::class, 'install'])
+            ->middleware('role:school_admin')
+            ->name('update.install');
+
         // Clearance Management (Tenant Admin)
         Route::get('/clearances', [App\Http\Controllers\Staff\ClearanceController::class, 'index'])
             ->middleware('permission:tenant.clearances.view')

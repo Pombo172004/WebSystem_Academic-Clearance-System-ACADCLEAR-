@@ -15,6 +15,7 @@ class ClearanceChecklistItem extends Model
 		'location',
 		'status',
 		'approved_at',
+		'approved_by_name',
 		'sort_order',
 	];
 

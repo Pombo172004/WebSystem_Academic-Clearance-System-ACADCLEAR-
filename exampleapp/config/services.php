@@ -44,4 +44,11 @@ return [
         'token' => env('SUPPORT_CHAT_TOKEN'),
     ],
 
+    'app_updates' => [
+        'github_repo' => env('APP_GITHUB_REPO', ''),
+        'github_token' => env('APP_GITHUB_TOKEN', ''),
+        'cache_minutes' => env('APP_UPDATE_CACHE_MINUTES', 15),
+        'verify_ssl' => env('APP_UPDATE_VERIFY_SSL', true),
+    ],
+
 ];

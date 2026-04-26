@@ -11,6 +11,7 @@
                 'location' => $clearance->approval_location ?? null,
                 'status' => $clearance->status,
                 'approved_at' => $clearance->updated_at,
+                'approved_by_name' => null,
             ],
         ]);
     $student = auth()->user();
@@ -106,6 +107,23 @@
         text-align: center;
     }
 
+    .approved-sign-stamp {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 120px;
+        padding: 0.2rem 0.6rem;
+        border: 2px solid #dc2626;
+        border-radius: 6px;
+        color: #dc2626;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        transform: rotate(-6deg);
+        margin-bottom: 0.4rem;
+    }
+
     .approval-line {
         border-top: 1.5px solid #111827;
         height: 0;
@@ -156,6 +174,11 @@
     .dark-mode .status-box.filled {
         background: #e5e7eb;
         color: #111827;
+    }
+
+    .dark-mode .approved-sign-stamp {
+        border-color: #f87171;
+        color: #fca5a5;
     }
 
     .dark-mode .approval-meta,
@@ -271,9 +294,20 @@
 
         <div class="approval-grid">
             @foreach($items->take(4) as $item)
+                @php
+                    $isApproved = ($item->status ?? 'pending') === 'approved';
+                    $approvedBy = trim((string) ($item->approved_by_name ?? ''));
+                    if ($approvedBy === '') {
+                        $approvedBy = $item->contact_person ?? 'Assigned staff';
+                    }
+                @endphp
                 <div class="approval-item">
+                    @if($isApproved)
+                        <div class="approved-sign-stamp">Approved</div>
+                    @endif
                     <div class="approval-line"></div>
                     <div class="approval-label">{{ $item->item_name }}</div>
+                    <div class="approval-meta">{{ $approvedBy }}</div>
                 </div>
             @endforeach
         </div>

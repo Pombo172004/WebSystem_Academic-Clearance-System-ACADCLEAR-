@@ -30,14 +30,19 @@ class DashboardController extends Controller
         $roleItemQuery = ClearanceChecklistItem::query()
             ->where('office_role', $staff->office_role)
             ->whereHas('clearance', function ($query) use ($staff) {
-                $query->where('department_id', $staff->department_id);
+                if (filled($staff->department_id)) {
+                    $query->where('department_id', $staff->department_id);
+                }
             });
 
         $stats = [
             'total' => (clone $roleItemQuery)->count(),
             'pending' => (clone $roleItemQuery)->where('status', 'pending')->count(),
             'approved' => (clone $roleItemQuery)->where('status', 'approved')->count(),
-            'rejected' => Clearance::where('department_id', $staff->department_id)
+            'rejected' => Clearance::query()
+                ->when(filled($staff->department_id), function ($query) use ($staff) {
+                    $query->where('department_id', $staff->department_id);
+                })
                 ->where('status', 'rejected')
                 ->whereHas('checklistItems', function ($query) use ($staff) {
                     $query->where('office_role', $staff->office_role);
@@ -47,7 +52,9 @@ class DashboardController extends Controller
 
         // Get recent clearances that include checklist items for this office role.
         $recentClearances = Clearance::with('student')
-            ->where('department_id', $staff->department_id)
+            ->when(filled($staff->department_id), function ($query) use ($staff) {
+                $query->where('department_id', $staff->department_id);
+            })
             ->whereHas('checklistItems', function ($query) use ($staff) {
                 $query->where('office_role', $staff->office_role);
             })

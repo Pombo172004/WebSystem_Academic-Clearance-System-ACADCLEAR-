@@ -3,11 +3,14 @@
 @section('content')
 @php
     $canManageStaff = auth()->user()->hasPermission('tenant.staff.manage');
+    $officeOnlyRoles = \App\Models\User::officeOnlyRoles();
+    $academicRoles = \App\Models\User::academicRoles();
+    $selectedOfficeRole = old('office_role', '');
 @endphp
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <div>
         <h1 class="h3 mb-1 text-gray-800">Add New Staff</h1>
-        <p class="mb-0 text-muted">Create a staff account and assign the correct college and department. Password is auto-generated and sent via email.</p>
+        <p class="mb-0 text-muted">Create a staff account, assign an office role, and optionally attach a college or department when the role calls for it. Password is auto-generated and sent via email.</p>
     </div>
     <a href="{{ route('admin.staff.index') }}" class="btn btn-back btn-sm mt-3 mt-sm-0">
         <i class="fas fa-arrow-left mr-1"></i> Back to List
@@ -72,11 +75,10 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="college_id" class="font-weight-bold small text-uppercase text-gray-700 mb-2">College <span class="text-danger">*</span></label>
+                        <label for="college_id" class="font-weight-bold small text-uppercase text-gray-700 mb-2">College <span class="text-muted">(optional)</span></label>
                         <select class="form-control @error('college_id') is-invalid @enderror" 
                                 id="college_id" 
-                                name="college_id" 
-                                required>
+                                name="college_id">
                             <option value="">Select College</option>
                             @foreach($colleges as $college)
                                 <option value="{{ $college->id }}" {{ old('college_id') == $college->id ? 'selected' : '' }}>
@@ -92,11 +94,10 @@
                 
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="department_id" class="font-weight-bold small text-uppercase text-gray-700 mb-2">Department <span class="text-danger">*</span></label>
+                                        <label for="department_id" class="font-weight-bold small text-uppercase text-gray-700 mb-2">Department <span class="text-muted">(optional)</span></label>
                         <select class="form-control @error('department_id') is-invalid @enderror" 
                                 id="department_id" 
-                                name="department_id" 
-                                required>
+                                                name="department_id">
                             <option value="">Select Department</option>
                         </select>
                         @error('department_id')
@@ -107,11 +108,10 @@
 
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="office_role" class="font-weight-bold small text-uppercase text-gray-700 mb-2">Office Role <span class="text-danger">*</span></label>
+                        <label for="office_role" class="font-weight-bold small text-uppercase text-gray-700 mb-2">Office Role <span class="text-muted">(optional for academic staff)</span></label>
                         <select class="form-control @error('office_role') is-invalid @enderror"
                                 id="office_role"
-                                name="office_role"
-                                required>
+                                name="office_role">
                             <option value="">Select Office Role</option>
                             @foreach($officeRoles as $roleKey => $roleLabel)
                                 <option value="{{ $roleKey }}" {{ old('office_role') === $roleKey ? 'selected' : '' }}>
@@ -120,6 +120,7 @@
                             @endforeach
                             <option value="custom" {{ old('office_role') === 'custom' ? 'selected' : '' }}>Other (Add New Role)</option>
                         </select>
+                        <small class="form-text text-muted" id="assignmentScopeHint">Leave office role blank for academic staff assigned to a college and department.</small>
                         @error('office_role')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -208,6 +209,9 @@
         var officeRoleSelect = document.getElementById('office_role');
         var customOfficeRoleWrapper = document.getElementById('customOfficeRoleWrapper');
         var customOfficeRoleInput = document.getElementById('custom_office_role');
+        var assignmentScopeHint = document.getElementById('assignmentScopeHint');
+        var officeOnlyRoles = @json($officeOnlyRoles);
+        var academicRoles = @json($academicRoles);
 
         function toggleCustomOfficeRole() {
             if (!officeRoleSelect || !customOfficeRoleWrapper) {
@@ -225,6 +229,44 @@
             }
         }
 
+        function getAssignmentScope(role) {
+            if (officeOnlyRoles.indexOf(role) !== -1) {
+                return 'office';
+            }
+
+            if (academicRoles.indexOf(role) !== -1) {
+                return 'academic';
+            }
+
+            return 'hybrid';
+        }
+
+        function setAssignmentState(scope) {
+            var officeOnly = scope === 'office';
+            var academic = scope === 'academic';
+
+            collegeSelect.disabled = officeOnly;
+            departmentSelect.disabled = officeOnly || !collegeSelect.value;
+
+            collegeSelect.required = academic;
+            departmentSelect.required = academic;
+
+            if (assignmentScopeHint) {
+                if (officeOnly) {
+                    assignmentScopeHint.textContent = 'Office-wide roles do not need a college or department.';
+                } else if (academic) {
+                    assignmentScopeHint.textContent = 'Academic roles should be tied to a college and department.';
+                } else {
+                    assignmentScopeHint.textContent = 'College and department are optional for this role.';
+                }
+            }
+
+            if (officeOnly) {
+                collegeSelect.value = '';
+                resetDepartment('Not needed for office-based staff');
+            }
+        }
+
         function resetDepartment(message) {
             departmentSelect.innerHTML = '<option value="">' + message + '</option>';
         }
@@ -232,10 +274,12 @@
         function loadDepartments(collegeId, selectedDepartmentId) {
             if (!collegeId) {
                 resetDepartment('Select Department');
+                departmentSelect.disabled = true;
                 return;
             }
 
             resetDepartment('Loading...');
+            departmentSelect.disabled = false;
 
             fetch('/admin/get-departments/' + collegeId)
                 .then(function (response) {
@@ -263,14 +307,26 @@
 
         collegeSelect.addEventListener('change', function () {
             loadDepartments(this.value, null);
+            setAssignmentState(getAssignmentScope(officeRoleSelect.value));
         });
 
-        if (collegeSelect.value) {
-            loadDepartments(collegeSelect.value, oldDepartmentId);
-        }
-
         officeRoleSelect?.addEventListener('change', toggleCustomOfficeRole);
+        officeRoleSelect?.addEventListener('change', function () {
+            setAssignmentState(getAssignmentScope(this.value));
+            if (this.value !== 'custom') {
+                toggleCustomOfficeRole();
+            }
+        });
+
         toggleCustomOfficeRole();
+        setAssignmentState(getAssignmentScope(officeRoleSelect.value));
+
+        if (collegeSelect.value && !collegeSelect.disabled) {
+            loadDepartments(collegeSelect.value, oldDepartmentId);
+        } else if (!collegeSelect.value) {
+            resetDepartment('Select Department');
+            departmentSelect.disabled = true;
+        }
 
         function setAllModules(checked) {
             document.querySelectorAll('.staff-module-checkbox').forEach(function (checkbox) {

@@ -16,6 +16,8 @@ class User extends Authenticatable
     public const OFFICE_ROLE_LIBRARIAN = 'librarian';
     public const OFFICE_ROLE_REGISTRAR = 'registrar';
     public const OFFICE_ROLE_CASHIER = 'cashier';
+    public const OFFICE_ROLE_ACCOUNTING_OFFICER = 'accounting_officer';
+    public const OFFICE_ROLE_ADMINISTRATION_OFFICER = 'administration_officer';
     public const OFFICE_ROLE_GUIDANCE_COUNSELOR = 'guidance_counselor';
     public const OFFICE_ROLE_DEPARTMENT_CHAIR = 'department_chair';
     public const OFFICE_ROLE_RESEARCH_COORDINATOR = 'research_coordinator';
@@ -147,6 +149,8 @@ class User extends Authenticatable
             self::OFFICE_ROLE_LIBRARIAN => 'Librarian',
             self::OFFICE_ROLE_REGISTRAR => 'Registrar',
             self::OFFICE_ROLE_CASHIER => 'Cashier',
+            self::OFFICE_ROLE_ACCOUNTING_OFFICER => 'Accounting Officer',
+            self::OFFICE_ROLE_ADMINISTRATION_OFFICER => 'Administration Officer',
             self::OFFICE_ROLE_GUIDANCE_COUNSELOR => 'Guidance Counselor',
             self::OFFICE_ROLE_DEPARTMENT_CHAIR => 'Department Chair',
             self::OFFICE_ROLE_RESEARCH_COORDINATOR => 'Research Coordinator',
@@ -173,6 +177,58 @@ class User extends Authenticatable
         }
 
         return $roles;
+    }
+
+    /**
+     * Office roles that should not require a college or department assignment.
+     *
+     * @return array<int, string>
+     */
+    public static function officeOnlyRoles(): array
+    {
+        return [
+            self::OFFICE_ROLE_LIBRARIAN,
+            self::OFFICE_ROLE_REGISTRAR,
+            self::OFFICE_ROLE_CASHIER,
+            self::OFFICE_ROLE_ACCOUNTING_OFFICER,
+            self::OFFICE_ROLE_ADMINISTRATION_OFFICER,
+            self::OFFICE_ROLE_GUIDANCE_COUNSELOR,
+            self::OFFICE_ROLE_STUDENT_AFFAIRS_OFFICER,
+        ];
+    }
+
+    /**
+     * Roles that normally belong to a college / department assignment.
+     *
+     * @return array<int, string>
+     */
+    public static function academicRoles(): array
+    {
+        return [
+            self::OFFICE_ROLE_DEPARTMENT_CHAIR,
+            self::OFFICE_ROLE_RESEARCH_COORDINATOR,
+            self::OFFICE_ROLE_THESIS_ADVISER,
+        ];
+    }
+
+    public static function staffAssignmentScope(?string $officeRole, ?int $collegeId = null, ?int $departmentId = null): string
+    {
+        $officeRole = trim((string) $officeRole);
+
+        if (in_array($officeRole, static::officeOnlyRoles(), true)) {
+            return 'office';
+        }
+
+        // Any non-office-only role scoped to both college and department is academic.
+        if ($collegeId !== null && $departmentId !== null) {
+            return 'academic';
+        }
+
+        if (in_array($officeRole, static::academicRoles(), true)) {
+            return 'academic';
+        }
+
+        return 'hybrid';
     }
 
     /**
