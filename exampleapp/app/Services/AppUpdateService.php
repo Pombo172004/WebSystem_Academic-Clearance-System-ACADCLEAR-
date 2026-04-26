@@ -10,7 +10,7 @@ use Throwable;
 
 class AppUpdateService
 {
-    public function getStatus(): array
+    public function getStatus(bool $forceRefresh = false): array
     {
         $currentVersion = (string) config('app.version', '1.0.0');
         $repo = trim((string) config('services.app_updates.github_repo', ''));
@@ -26,9 +26,13 @@ class AppUpdateService
             ];
         }
 
-        $cacheKey = 'app_update_status:' . md5($repo . '|' . $currentVersion);
+        $cacheKey = $this->makeCacheKey($repo, $currentVersion);
 
-        return Cache::remember($cacheKey, now()->addMinutes(max($cacheMinutes, 1)), function () use ($repo, $currentVersion) {
+        if ($forceRefresh) {
+            Cache::forget($cacheKey);
+        }
+
+        $status = Cache::remember($cacheKey, now()->addMinutes(max($cacheMinutes, 1)), function () use ($repo, $currentVersion) {
             $latestVersion = $this->fetchLatestVersion($repo);
 
             if ($latestVersion === null) {
@@ -43,6 +47,18 @@ class AppUpdateService
 
             $normalizedCurrent = $this->normalizeVersion($currentVersion);
             $normalizedLatest = $this->normalizeVersion($latestVersion);
+
+            // Guard against stale/lagging API or cache responses.
+            if (version_compare($normalizedLatest, $normalizedCurrent, '<')) {
+                return [
+                    'current_version' => $currentVersion,
+                    'latest_version' => $currentVersion,
+                    'has_update' => false,
+                    'is_up_to_date' => true,
+                    'error' => null,
+                ];
+            }
+
             $hasUpdate = version_compare($normalizedLatest, $normalizedCurrent, '>');
 
             return [
@@ -53,6 +69,21 @@ class AppUpdateService
                 'error' => null,
             ];
         });
+
+        $latestVersion = isset($status['latest_version']) ? (string) $status['latest_version'] : null;
+        if ($latestVersion !== null && $latestVersion !== '') {
+            $normalizedCurrent = $this->normalizeVersion($currentVersion);
+            $normalizedLatest = $this->normalizeVersion($latestVersion);
+
+            if (version_compare($normalizedLatest, $normalizedCurrent, '<')) {
+                $status['latest_version'] = $currentVersion;
+                $status['has_update'] = false;
+                $status['is_up_to_date'] = true;
+                $status['error'] = null;
+            }
+        }
+
+        return $status;
     }
 
     public function clearStatusCache(): void
@@ -64,8 +95,13 @@ class AppUpdateService
             return;
         }
 
-        $cacheKey = 'app_update_status:' . md5($repo . '|' . $currentVersion);
+        $cacheKey = $this->makeCacheKey($repo, $currentVersion);
         Cache::forget($cacheKey);
+    }
+
+    private function makeCacheKey(string $repo, string $currentVersion): string
+    {
+        return 'app_update_status:' . md5($repo . '|' . $currentVersion);
     }
 
     private function fetchLatestVersion(string $repo): ?string

@@ -42,6 +42,12 @@
         <p class="mb-4"><strong>Current Version:</strong> {{ $currentVersion }}</p>
         <p class="mb-4"><strong>Latest Version:</strong> {{ $latestVersion ?? 'Unavailable' }}</p>
 
+        <div class="mb-3">
+            <a href="{{ route('admin.update.index', ['refresh' => 1]) }}" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-sync-alt mr-1"></i> Refresh Latest Version
+            </a>
+        </div>
+
         <form method="POST" action="{{ route('admin.update.install') }}" onsubmit="return confirm('Install the new version now?');">
             @csrf
             @if($isUpToDate === true)

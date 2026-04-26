@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented in this file.
 
+## v1.0.6 - 2026-04-26
+
+### Update system reliability
+- Fixed the Admin App Update page showing an older `Latest Version` after a new GitHub release was already published.
+- Added stale-response protection in the update service so the displayed latest version will never be lower than the running current version.
+- Added force-refresh support for update status checks to bypass cached data when needed.
+
+### Admin update page UX
+- Added a `Refresh Latest Version` button on the update screen to immediately re-check GitHub release/tag data.
+- Wired the update controller to support manual refresh via query flag and fresh status retrieval.
+
 ## v1.0.5 - 2026-04-26
 
 ### Security and authorization
