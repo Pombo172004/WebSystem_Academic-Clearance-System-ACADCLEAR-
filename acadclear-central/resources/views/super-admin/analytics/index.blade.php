@@ -229,8 +229,8 @@
             datasets: [{
                 label: 'Revenue (₱)',
                 data: {!! json_encode($revenueData['data']) !!},
-                borderColor: '#4e73df',
-                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                borderColor: '#122C4F',
+                backgroundColor: 'rgba(18, 44, 79, 0.05)',
                 tension: 0.3,
                 fill: true
             }]
@@ -281,8 +281,8 @@
             datasets: [{
                 label: 'New Universities',
                 data: {!! json_encode($tenantGrowth['data']) !!},
-                backgroundColor: '#36b9cc',
-                borderColor: '#36b9cc',
+                backgroundColor: '#5B88B2',
+                borderColor: '#5B88B2',
                 borderWidth: 1
             }]
         },
@@ -307,7 +307,7 @@
             labels: {!! json_encode($paymentMethods['labels']) !!},
             datasets: [{
                 data: {!! json_encode($paymentMethods['data']) !!},
-                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+                backgroundColor: ['#122C4F', '#000000', '#5B88B2', '#FBF9E4', '#32435d']
             }]
         },
         options: {

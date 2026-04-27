@@ -1,9 +1,9 @@
 @extends('layouts.auth')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-slate-200/80 p-4 md:p-6">
+<div class="min-h-screen flex items-center justify-center p-4 md:p-6" style="background-color: #ffffff;">
     <div class="w-full max-w-5xl min-h-[600px] flex flex-col md:flex-row rounded-[28px] overflow-hidden shadow-2xl bg-white">
-        <div class="md:w-[45%] bg-blue-500 flex flex-col justify-between p-8 md:p-10 text-white">
+        <div class="md:w-[45%] flex flex-col justify-between p-8 md:p-10 text-white" style="background-color: #122C4F !important;">
             <div>
                 <div class="flex items-center gap-3">
                     <div class="flex -space-x-1.5">
@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <div class="md:w-[55%] bg-[#0f172a] flex flex-col p-8 md:p-10">
+        <div class="md:w-[55%] flex flex-col p-8 md:p-10" style="background-color: #000000 !important;">
             <nav class="flex items-center justify-end gap-6 text-sm font-medium mb-8">
                 @if (Route::has('register'))
                     <a href="{{ route('register') }}" class="text-blue-300 hover:text-blue-200 transition">Register</a>
@@ -62,9 +62,11 @@
                         $recaptchaSiteKey = config('services.recaptcha.site_key');
                     @endphp
                     <div>
+                        <label for="email" class="sr-only">{{ __('Email') }}</label>
                         <x-text-input
                             id="email"
-                            class="block w-full rounded-xl border-0 bg-white text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                            class="block w-full rounded-xl border-0 py-3 px-4 transition"
+                            style="background-color: #FBF9E4 !important; color: #122C4F !important;"
                             type="email"
                             name="email"
                             :value="old('email')"
@@ -77,9 +79,11 @@
                     </div>
 
                     <div>
+                        <label for="password" class="sr-only">{{ __('Password') }}</label>
                         <x-text-input
                             id="password"
-                            class="block w-full rounded-xl border-0 bg-white text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                            class="block w-full rounded-xl border-0 py-3 px-4 transition"
+                            style="background-color: #FBF9E4 !important; color: #122C4F !important;"
                             type="password"
                             name="password"
                             required
@@ -126,9 +130,10 @@
                         @endif
                     </div>
 
-                    <button
+                        <button
                         type="submit"
-                        class="w-full py-3.5 px-4 rounded-xl font-semibold text-white bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#0f172a] transition"
+                        class="w-full py-3.5 px-4 rounded-xl font-semibold text-white transition hover:opacity-90"
+                        style="background-color: #122C4F !important;"
                     >
                         {{ __('Log in') }}
                     </button>

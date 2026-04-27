@@ -3,7 +3,7 @@
 @section('content')
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Edit University</h1>
-    <a href="{{ route('super-admin.tenants.index') }}" class="btn btn-secondary">
+    <a href="{{ route('super-admin.tenants.index') }}" class="btn btn-back">
         <i class="fas fa-arrow-left"></i> Back to List
     </a>
 </div>
@@ -19,18 +19,18 @@
             
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">University Name *</label>
-                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
-                           value="{{ old('name', $tenant->name) }}" required>
+                    <label for="edit-tenant-name" class="form-label">University Name *</label>
+                    <input type="text" id="edit-tenant-name" name="name" class="form-control @error('name') is-invalid @enderror"
+                           value="{{ old('name', $tenant->name) }}" required autocomplete="organization">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Domain *</label>
-                    <input type="text" name="domain" class="form-control @error('domain') is-invalid @enderror" 
-                           value="{{ old('domain', $tenant->domain) }}" required>
+                    <label for="edit-tenant-domain" class="form-label">Domain *</label>
+                    <input type="text" id="edit-tenant-domain" name="domain" class="form-control @error('domain') is-invalid @enderror"
+                           value="{{ old('domain', $tenant->domain) }}" required autocomplete="off">
                     @error('domain')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -40,8 +40,8 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Status *</label>
-                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                    <label for="edit-tenant-status" class="form-label">Status *</label>
+                    <select id="edit-tenant-status" name="status" class="form-select @error('status') is-invalid @enderror" required>
                         <option value="active" {{ old('status', $tenant->status) == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="suspended" {{ old('status', $tenant->status) == 'suspended' ? 'selected' : '' }}>Suspended</option>
                         <option value="expired" {{ old('status', $tenant->status) == 'expired' ? 'selected' : '' }}>Expired</option>
@@ -52,8 +52,8 @@
                 </div>
                 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Suspension Reason</label>
-                    <textarea name="suspension_reason" class="form-control @error('suspension_reason') is-invalid @enderror" 
+                    <label for="edit-tenant-suspension-reason" class="form-label">Suspension Reason</label>
+                    <textarea id="edit-tenant-suspension-reason" name="suspension_reason" class="form-control @error('suspension_reason') is-invalid @enderror"
                               rows="3" placeholder="Reason for suspension (if applicable)">{{ old('suspension_reason', $tenant->suspension_reason) }}</textarea>
                     @error('suspension_reason')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -63,8 +63,8 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">University Logo</label>
-                    <input type="file" name="logo" class="form-control @error('logo') is-invalid @enderror" accept="image/*">
+                    <label for="edit-tenant-logo" class="form-label">University Logo</label>
+                    <input type="file" id="edit-tenant-logo" name="logo" class="form-control @error('logo') is-invalid @enderror" accept="image/*">
                     @error('logo')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

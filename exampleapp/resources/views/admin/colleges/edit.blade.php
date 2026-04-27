@@ -7,7 +7,7 @@
 @endphp
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Edit College</h1>
-    <a href="{{ route('admin.colleges.index') }}" class="btn btn-secondary">
+    <a href="{{ route('admin.colleges.index') }}" class="btn btn-back">
         <i class="fas fa-arrow-left"></i> Back to List
     </a>
 </div>

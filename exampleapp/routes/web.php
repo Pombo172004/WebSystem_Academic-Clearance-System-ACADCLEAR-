@@ -61,6 +61,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/support/chat/messages', [App\Http\Controllers\SupportChatController::class, 'store'])
         ->middleware('permission:tenant.support_chat.access')
         ->name('support.chat.store');
+    Route::post('/support/chat/mark-read', [App\Http\Controllers\SupportChatController::class, 'markRead'])
+        ->middleware('permission:tenant.support_chat.access')
+        ->name('support.chat.mark-read');
     
     // Generic dashboard redirect (by role)
     Route::get('/dashboard', function () {

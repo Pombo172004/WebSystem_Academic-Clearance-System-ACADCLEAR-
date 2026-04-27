@@ -49,9 +49,13 @@ class ProfileController extends Controller
 
         if ($request->user()->role === 'school_admin') {
             $request->validate([
-                'tenant_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
-                'remove_tenant_logo' => ['nullable', 'boolean'],
-                'tenant_color_scheme' => ['nullable', 'string', 'in:ocean,forest,sunset'],
+                'tenant_logo'       => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
+                'remove_tenant_logo'=> ['nullable', 'boolean'],
+                'tenant_primary_color' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+                'tenant_accent_color'  => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            ], [
+                'tenant_primary_color.regex' => 'Primary color must be a valid 6-digit hex color (e.g. #122C4F).',
+                'tenant_accent_color.regex'  => 'Accent color must be a valid 6-digit hex color (e.g. #5B88B2).',
             ]);
 
             $tenantSlug = (string) $request->attributes->get('tenant_slug', data_get($request->attributes->get('tenant_details'), 'slug', ''));
@@ -73,8 +77,14 @@ class ProfileController extends Controller
                     $tenantLogoChanged = true;
                 }
 
-                if ($request->filled('tenant_color_scheme')) {
-                    $branding['color_scheme'] = $request->string('tenant_color_scheme')->toString();
+                // 60-30-10 custom colors
+                if ($request->filled('tenant_primary_color') || $request->filled('tenant_accent_color')) {
+                    if ($request->filled('tenant_primary_color')) {
+                        $branding['custom_primary'] = strtoupper($request->string('tenant_primary_color')->toString());
+                    }
+                    if ($request->filled('tenant_accent_color')) {
+                        $branding['custom_accent'] = strtoupper($request->string('tenant_accent_color')->toString());
+                    }
                     $tenantThemeChanged = true;
                 }
 

@@ -13,72 +13,38 @@
 @endphp
 @push('styles')
 <style>
-    .clearance-page {
-        --panel-bg: rgba(18, 36, 59, 0.65);
-        --panel-border: rgba(138, 180, 248, 0.18);
-        --text-soft: #9bb4d3;
-        --accent: #32c8ff;
+    .clearances-page-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
     }
 
-    .clearance-page .page-title {
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        color: #f5fbff;
+    .clearances-page-action {
+        min-width: 12.5rem;
+        min-height: calc(1.5em + 0.75rem + 2px);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff !important;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
     }
 
-    .clearance-page .card {
-        background: linear-gradient(160deg, rgba(20, 41, 67, 0.9), var(--panel-bg));
-        border: 1px solid var(--panel-border);
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+    .btn-clearance-create {
+        border-color: var(--tenant-accent, #5B88B2) !important;
+        color: var(--tenant-accent, #5B88B2) !important;
     }
 
-    .clearance-page .card-header {
-        border-bottom: 1px solid rgba(150, 180, 220, 0.16);
-        background: linear-gradient(90deg, rgba(11, 29, 52, 0.7), rgba(29, 52, 84, 0.52));
+    .btn-clearance-create:hover,
+    .btn-clearance-create:focus {
+        background-color: var(--tenant-primary-soft, #5B88B220) !important;
+        border-color: var(--tenant-accent, #5B88B2) !important;
+        color: var(--tenant-accent, #5B88B2) !important;
+        box-shadow: 0 0 0 0.2rem var(--tenant-primary-soft, #5B88B220) !important;
     }
 
-    .clearance-page .card-header h6 {
-        color: #68dbff !important;
-        letter-spacing: 0.02em;
-    }
-
-    .clearance-page .filters-form .form-control,
-    .clearance-page .filters-form .btn {
-        min-height: 42px;
-        border-radius: 10px;
-    }
-
-    .clearance-page .table {
-        color: #eef5ff;
-        border-color: rgba(150, 180, 220, 0.2);
-        margin-bottom: 0;
-    }
-
-    .clearance-page .table thead th {
-        background: rgba(17, 37, 62, 0.96);
-        color: #dcecff;
-        font-weight: 600;
-        border-bottom-width: 1px;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .clearance-page .table tbody td {
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-        vertical-align: top;
-        border-color: rgba(150, 180, 220, 0.18);
-    }
-
-    .clearance-page .table tbody tr:hover {
-        background: rgba(90, 180, 255, 0.08);
-    }
-
-    .clearance-page .muted-note {
-        color: var(--text-soft) !important;
+    .btn-clearance-export {
+        border-color: var(--tenant-sidebar-bg, #122C4F) !important;
+        color: var(--tenant-sidebar-bg, #122C4F) !important;
     }
 
     .clearance-page .checklist-card {
@@ -200,49 +166,29 @@
         cursor: help;
     }
 
-    .clearance-page .approved-stamp-preview {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 54px;
-        min-width: 190px;
-        border: 3px solid #d03535;
-        border-radius: 6px;
-        color: #d03535;
-        font-weight: 800;
-        font-size: 1.05rem;
-        letter-spacing: 0.12em;
-        transform: rotate(-6deg);
-        text-transform: uppercase;
-        background: rgba(255, 245, 245, 0.8);
-        margin-bottom: 0.75rem;
+    .clearances-filter-form .form-control {
+        min-height: calc(1.5em + 0.75rem + 2px);
+        border-color: #d1d5db;
+        background-color: #ffffff;
     }
 
-    @media (max-width: 992px) {
-        .clearance-page .d-sm-flex {
-            gap: 0.65rem;
-        }
-
-        .clearance-page .table-responsive {
-            border-radius: 10px;
-        }
+    .clearances-filter-form .clearances-filter-action {
+        min-height: calc(1.5em + 0.75rem + 2px);
     }
 </style>
 @endpush
-
-<div class="clearance-page">
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 page-title">Clearance Requests</h1>
     <div class="d-flex flex-wrap align-items-center" style="gap: 0.5rem;">
         @if($canCreateClearance)
-            <a href="{{ route('admin.clearances.create') }}" class="btn btn-primary">
+            <a href="{{ route('admin.clearances.create') }}" class="btn clearances-page-action btn-clearance-create">
                 <i class="fas fa-plus"></i> Add Clearance
             </a>
         @endif
         @if($canExportClearance)
-            <a href="{{ route('admin.clearances.export', request()->all()) }}" class="btn btn-success">
+            <button type="button" class="btn clearances-page-action btn-clearance-export" data-bs-toggle="modal" data-bs-target="#exportModal">
                 <i class="fas fa-download"></i> Export
-            </a>
+            </button>
         @endif
     </div>
 </div>
@@ -271,7 +217,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Filter Clearances</h6>
     </div>
     <div class="card-body">
-        <form method="GET" action="{{ route('admin.clearances.index') }}" class="row filters-form">
+        <form method="GET" action="{{ route('admin.clearances.index') }}" class="row g-3 align-items-end clearances-filter-form">
             <div class="col-md-3">
                 <select name="status" class="form-control">
                     <option value="">All Status</option>
@@ -285,10 +231,10 @@
                        placeholder="Search by student name..." value="{{ request('search') }}">
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                <button type="submit" class="btn btn-primary w-100 clearances-filter-action">Filter</button>
             </div>
             <div class="col-md-2">
-                <a href="{{ route('admin.clearances.index') }}" class="btn btn-secondary w-100">Reset</a>
+                <a href="{{ route('admin.clearances.index') }}" class="btn btn-secondary w-100 clearances-filter-action">Reset</a>
             </div>
         </form>
     </div>
@@ -416,7 +362,7 @@
                                                         </p>
                                                     @endif
                                                 </div>
-                                                <span class="badge bg-{{ $item->status === 'approved' ? 'success' : 'secondary' }}">
+                                                <span class="badge bg-{{ $item->status === 'approved' ? 'status-60' : 'status-30' }}">
                                                     {{ ucfirst($item->status) }}
                                                 </span>
                                             </div>
@@ -530,9 +476,9 @@
                         <td>
                             @php
                                 $statusClass = [
-                                    'approved' => 'success',
-                                    'rejected' => 'danger',
-                                    'pending' => 'warning'
+                                    'approved' => 'status-60',
+                                    'rejected' => 'status-10',
+                                    'pending' => 'status-30'
                                 ][$clearance->status];
                             @endphp
                             <span class="badge status-pill bg-{{ $statusClass }}">

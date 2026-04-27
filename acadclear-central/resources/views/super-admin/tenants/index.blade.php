@@ -79,11 +79,13 @@
     <div class="card-body">
         <form method="GET" class="row">
             <div class="col-md-4">
-                <input type="text" name="search" class="form-control" 
+                <label for="tenant-search" class="visually-hidden">Search universities</label>
+                <input type="text" id="tenant-search" name="search" class="form-control"
                        placeholder="Search name or domain" value="{{ request('search') }}">
             </div>
             <div class="col-md-3">
-                <select name="status" class="form-select">
+                <label for="tenant-status-filter" class="visually-hidden">Filter by status</label>
+                <select id="tenant-status-filter" name="status" class="form-select">
                     <option value="">All Status</option>
                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                     <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
@@ -168,5 +170,9 @@
         </div>
     </div>
 </div>
+<<<<<<< HEAD
+@endsection
+=======
 </div>
 @endsection
+>>>>>>> 4ffcd46a1b52041b2befc4b727403c9270a783bf

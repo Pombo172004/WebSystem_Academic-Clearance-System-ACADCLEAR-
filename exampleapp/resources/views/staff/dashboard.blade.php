@@ -73,7 +73,7 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                             Total Clearances</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] }}</div>
                     </div>
@@ -87,11 +87,11 @@
 
     <!-- Pending Clearances -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                             Pending</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['pending'] }}</div>
                     </div>
@@ -108,11 +108,11 @@
 
     <!-- Approved Clearances -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
+        <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                             Approved</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['approved'] }}</div>
                     </div>
@@ -129,11 +129,11 @@
 
     <!-- Rejected Clearances -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
                             Rejected</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['rejected'] }}</div>
                     </div>
@@ -176,9 +176,9 @@
                                 $roleItem = $clearance->checklistItems->first();
                                 $displayStatus = $roleItem->status ?? $clearance->status;
                                 $badgeClass = [
-                                    'approved' => 'success',
-                                    'rejected' => 'danger',
-                                    'pending' => 'warning'
+                                    'approved' => 'status-60',
+                                    'rejected' => 'status-10',
+                                    'pending' => 'status-30'
                                 ][$displayStatus] ?? 'secondary';
                             @endphp
                             <tr>

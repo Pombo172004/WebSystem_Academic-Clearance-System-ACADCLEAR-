@@ -1,10 +1,10 @@
 @extends('layouts.auth')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-slate-200/80 p-4 md:p-6">
+<div class="min-h-screen flex items-center justify-center p-4 md:p-6" style="background-color: #ffffff;">
     <div class="w-full max-w-5xl min-h-[600px] flex flex-col md:flex-row rounded-[28px] overflow-hidden shadow-2xl bg-white">
-        {{-- Left panel: Branding & marketing (vibrant blue) --}}
-        <div class="md:w-[45%] bg-blue-500 flex flex-col justify-between p-8 md:p-10 text-white">
+        {{-- Left panel: Branding & marketing --}}
+        <div class="md:w-[45%] flex flex-col justify-between p-8 md:p-10 text-white" style="background-color: #122C4F !important;">
             <div>
                 {{-- Logo + brand --}}
                 <div class="flex items-center gap-3">
@@ -42,8 +42,8 @@
             </div>
         </div>
 
-        {{-- Right panel: Form (dark navy) --}}
-        <div class="md:w-[55%] bg-[#0f172a] flex flex-col p-8 md:p-10">
+        {{-- Right panel: Form (black) --}}
+        <div class="md:w-[55%] flex flex-col p-8 md:p-10" style="background-color: #000000 !important;">
             {{-- Nav --}}
             <nav class="flex items-center justify-end gap-6 text-sm font-medium mb-8">
                 <a href="#" class="text-white/80 hover:text-white transition">About Us</a>
@@ -63,7 +63,8 @@
                     <div>
                         <x-text-input
                             id="name"
-                            class="block w-full rounded-xl border-0 bg-white text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                            class="block w-full rounded-xl border-0 py-3 px-4 transition"
+                            style="background-color: #FBF9E4 !important; color: #122C4F !important;"
                             type="text"
                             name="name"
                             :value="old('name')"
@@ -107,7 +108,8 @@
                     <div>
                         <x-text-input
                             id="email"
-                            class="block w-full rounded-xl border-0 bg-white text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                            class="block w-full rounded-xl border-0 py-3 px-4 transition"
+                            style="background-color: #FBF9E4 !important; color: #122C4F !important;"
                             type="email"
                             name="email"
                             :value="old('email')"
@@ -121,7 +123,8 @@
                     <div>
                         <x-text-input
                             id="password"
-                            class="block w-full rounded-xl border-0 bg-white text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                            class="block w-full rounded-xl border-0 py-3 px-4 transition"
+                            style="background-color: #FBF9E4 !important; color: #122C4F !important;"
                             type="password"
                             name="password"
                             required
@@ -134,7 +137,8 @@
                     <div>
                         <x-text-input
                             id="password_confirmation"
-                            class="block w-full rounded-xl border-0 bg-white text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400 py-3 px-4 transition"
+                            class="block w-full rounded-xl border-0 py-3 px-4 transition"
+                            style="background-color: #FBF9E4 !important; color: #122C4F !important;"
                             type="password"
                             name="password_confirmation"
                             required
@@ -146,7 +150,8 @@
 
                     <button
                         type="submit"
-                        class="w-full py-3.5 px-4 rounded-xl font-semibold text-white bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#0f172a] transition"
+                        class="w-full py-3.5 px-4 rounded-xl font-semibold text-white transition hover:opacity-90"
+                        style="background-color: #122C4F !important;"
                     >
                         {{ __('Register') }}
                     </button>

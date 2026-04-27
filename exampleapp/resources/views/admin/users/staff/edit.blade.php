@@ -20,7 +20,7 @@
         <h1 class="h3 mb-1 text-gray-800">Edit Staff</h1>
         <p class="mb-0 text-muted">Update profile, office assignment, and module access for this staff account.</p>
     </div>
-    <a href="{{ route('admin.staff.index') }}" class="btn btn-outline-secondary btn-sm mt-3 mt-sm-0">
+    <a href="{{ route('admin.staff.index') }}" class="btn btn-back btn-sm mt-3 mt-sm-0">
         <i class="fas fa-arrow-left mr-1"></i> Back to List
     </a>
 </div>
@@ -145,8 +145,8 @@
                         <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
                             <label class="form-label mb-0">Module Access</label>
                             <div class="mt-2 mt-sm-0">
-                                <button type="button" class="btn btn-sm btn-outline-primary mr-1" id="selectAllModulesEdit">Select All</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" id="clearAllModulesEdit">Clear</button>
+                                <button type="button" class="btn btn-sm btn-module-select-all mr-1" id="selectAllModulesEdit">Select All</button>
+                                <button type="button" class="btn btn-sm btn-module-clear" id="clearAllModulesEdit">Clear</button>
                             </div>
                         </div>
                         @php

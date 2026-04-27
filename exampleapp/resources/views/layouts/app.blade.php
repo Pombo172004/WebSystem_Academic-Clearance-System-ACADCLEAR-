@@ -29,26 +29,145 @@
 
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+    @php
+        $cssPrimary = $tenantPrimaryColor ?? '#122C4F';
+        $cssAccent  = $tenantAccentColor  ?? '#5B88B2';
+        // Derive a slightly-darker shade of the accent for hover states (simple approach: add 18-char opacity).
+    @endphp
     <style>
+        /* =====================================================
+         * 60-30-10 DYNAMIC COLOUR SYSTEM
+         * 60% — sidebar background  →  --tenant-primary
+         * 30% — buttons & icons     →  --tenant-accent
+         * 10% — text / details      →  #000 (fixed)
+         * ===================================================== */
         :root {
-            --tenant-primary: #2563eb;
-            --tenant-primary-dark: #1d4ed8;
-            --tenant-primary-soft: rgba(37, 99, 235, 0.12);
-            --tenant-sidebar-gradient: linear-gradient(180deg, #2f6fe4 0%, #0052cc 100%);
+            --tenant-primary:        {{ $cssAccent }};   /* accent drives Bootstrap "primary" utilities */
+            --tenant-accent:         {{ $cssAccent }};   /* 30% branding color — buttons, borders, text */
+            --tenant-primary-dark:   {{ $cssAccent }}cc; /* slightly transparent for borders/hovers */
+            --tenant-primary-soft:   {{ $cssAccent }}20; /* very transparent for soft backgrounds */
+            --tenant-sidebar-bg:     {{ $cssPrimary }};
+            --tenant-detail:         #000000;
+            --tenant-sidebar-gradient: linear-gradient(180deg, {{ $cssAccent }}22 0%, {{ $cssPrimary }} 100%);
         }
 
-        html[data-tenant-scheme="forest"] {
-            --tenant-primary: #059669;
-            --tenant-primary-dark: #047857;
-            --tenant-primary-soft: rgba(5, 150, 105, 0.12);
-            --tenant-sidebar-gradient: linear-gradient(180deg, #10b981 0%, #059669 45%, #064e3b 100%);
+        /* ── Sidebar (60%) ── */
+        #accordionSidebar {
+            background: var(--tenant-sidebar-bg) !important;
         }
 
-        html[data-tenant-scheme="sunset"] {
-            --tenant-primary: #d97706;
-            --tenant-primary-dark: #b45309;
-            --tenant-primary-soft: rgba(217, 119, 6, 0.12);
-            --tenant-sidebar-gradient: linear-gradient(180deg, #f59e0b 0%, #d97706 45%, #7c2d12 100%);
+        /* ── Global rounded cards ── */
+        .card {
+            border-radius: 1rem !important;
+            overflow: hidden;
+        }
+        .card-header:first-child {
+            border-radius: calc(1rem - 1px) calc(1rem - 1px) 0 0 !important;
+        }
+        .card-footer:last-child {
+            border-radius: 0 0 calc(1rem - 1px) calc(1rem - 1px) !important;
+        }
+        .card-header {
+            color: var(--tenant-detail) !important;
+        }
+        .card-header h1,
+        .card-header h2,
+        .card-header h3,
+        .card-header h4,
+        .card-header h5,
+        .card-header h6,
+        .card-header .text-primary {
+            color: var(--tenant-detail) !important;
+        }
+
+
+        /* ── Accent – buttons / icons / badges (30%) ── */
+        .btn-primary,
+        .badge-primary,
+        .bg-primary,
+        .sidebar .nav-link:hover,
+        .sidebar .nav-item.active .nav-link {
+            background-color: var(--tenant-accent, {{ $cssAccent }}) !important;
+            border-color:     var(--tenant-accent, {{ $cssAccent }}) !important;
+        }
+
+        .text-primary,
+        .sidebar .nav-link i,
+        .sidebar .sidebar-brand-text,
+        .sidebar .sidebar-brand-icon,
+        .navbar .text-primary,
+        .nav-link .fa,
+        .nav-link .fas {
+            color: {{ $cssAccent }} !important;
+        }
+
+        /* ── Active/hovered nav item: flip icon + text to white so they stay
+           visible against the accent-coloured background (30%) ── */
+        .sidebar .nav-item.active .nav-link i,
+        .sidebar .nav-item.active .nav-link span,
+        .sidebar .nav-link:hover i,
+        .sidebar .nav-link:hover span {
+            color: #ffffff !important;
+        }
+        /* Brand area stays readable at all times */
+        .sidebar .sidebar-brand-text,
+        .sidebar .sidebar-brand-icon i {
+            color: #ffffff !important;
+        }
+
+        /* Override Bootstrap --bs-primary if needed */
+        .btn-primary { background-color: {{ $cssAccent }} !important; border-color: {{ $cssAccent }} !important; }
+        .btn-primary:hover { filter: brightness(0.9); }
+
+        /* ── Custom "Back to List" button (30% color with 60% opacity) ── */
+        .btn-back {
+            background-color: #ffffff !important;
+            border-color: var(--tenant-accent, {{ $cssAccent }}) !important;
+            color: var(--tenant-accent, {{ $cssAccent }}) !important;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-back:hover,
+        .btn-back:focus {
+            background-color: var(--tenant-primary-soft, {{ $cssAccent }}20) !important;
+            border-color: var(--tenant-accent, {{ $cssAccent }}) !important;
+            color: var(--tenant-accent, {{ $cssAccent }}) !important;
+            box-shadow: 0 0 0 0.2rem var(--tenant-primary-soft, {{ $cssAccent }}20);
+        }
+
+        /* ── File Input Styling ── */
+        input[type="file"]::file-selector-button {
+            background-color: #ffffff;
+            color: var(--tenant-accent, {{ $cssAccent }});
+            border: 1px solid var(--tenant-accent, {{ $cssAccent }});
+            border-radius: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            margin-right: 1rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            cursor: pointer;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background-color: var(--tenant-accent, {{ $cssAccent }});
+            color: #ffffff;
+        }
+
+        /* ── Layout ── */
+        .bg-status-60 { background-color: var(--tenant-sidebar-bg) !important; color: #fff !important; }
+        .bg-status-30 { background-color: var(--tenant-accent, {{ $cssAccent }}) !important; color: #fff !important; }
+        .bg-status-10 { background-color: var(--tenant-detail) !important; color: #fff !important; }
+
+        .btn-module-select-all,
+        .btn-module-clear {
+            background-color: transparent !important;
+        }
+
+        .btn-module-select-all {
+            color: {{ $cssAccent }} !important;
+            border-color: {{ $cssAccent }} !important;
+        }
+
+        .btn-module-clear {
+            color: {{ $cssPrimary }} !important;
+            border-color: {{ $cssPrimary }} !important;
         }
 
         @media (min-width: 768px) {
@@ -59,97 +178,75 @@
                 overflow-y: auto;
                 flex-shrink: 0;
             }
-
-            #content-wrapper {
-                min-height: 100vh;
-            }
+            #content-wrapper { min-height: 100vh; }
         }
 
-        .dark-mode body,
-        .dark-mode {
+        /* ── Dark mode (preserves 60-30-10 palette) ── */
+        .dark-mode body, .dark-mode {
             background-color: #111827;
             color: #e5e7eb;
         }
-
-        .dark-mode #content,
-        .dark-mode #content-wrapper,
-        .dark-mode .container-fluid,
-        .dark-mode .card,
-        .dark-mode .card-header,
-        .dark-mode .card-footer,
-        .dark-mode .modal-content,
-        .dark-mode .dropdown-menu,
-        .dark-mode .list-group-item,
-        .dark-mode .table,
-        .dark-mode .table thead th,
-        .dark-mode .table td,
-        .dark-mode .table th,
-        .dark-mode .form-control,
-        .dark-mode .form-select,
-        .dark-mode .input-group-text,
-        .dark-mode .topbar,
-        .dark-mode .sticky-footer {
+        .dark-mode #content, .dark-mode #content-wrapper,
+        .dark-mode .container-fluid, .dark-mode .card,
+        .dark-mode .card-header, .dark-mode .card-footer,
+        .dark-mode .modal-content, .dark-mode .dropdown-menu,
+        .dark-mode .list-group-item, .dark-mode .table,
+        .dark-mode .table thead th, .dark-mode .table td,
+        .dark-mode .table th, .dark-mode .form-control,
+        .dark-mode .form-select, .dark-mode .input-group-text,
+        .dark-mode .topbar, .dark-mode .sticky-footer {
             background-color: #1f2937 !important;
             color: #e5e7eb !important;
             border-color: #374151 !important;
         }
-
-        .dark-mode .bg-white,
-        .dark-mode .bg-light,
-        .dark-mode .table-light,
-        .dark-mode .thead-light th,
-        .dark-mode .table thead,
-        .dark-mode .table tbody,
-        .dark-mode .table tr,
-        .dark-mode .border,
-        .dark-mode .table-bordered,
-        .dark-mode .table-bordered td,
+        .dark-mode .bg-white, .dark-mode .bg-light,
+        .dark-mode .table-light, .dark-mode .thead-light th,
+        .dark-mode .table thead, .dark-mode .table tbody,
+        .dark-mode .table tr, .dark-mode .border,
+        .dark-mode .table-bordered, .dark-mode .table-bordered td,
         .dark-mode .table-bordered th {
             background-color: #1f2937 !important;
             color: #e5e7eb !important;
             border-color: #374151 !important;
         }
-
-        .dark-mode .text-gray-800,
-        .dark-mode .text-gray-700,
-        .dark-mode .text-gray-600,
-        .dark-mode .text-dark,
-        .dark-mode .card-header,
-        .dark-mode .card-footer,
-        .dark-mode .dropdown-item,
-        .dark-mode .navbar-light .navbar-nav .nav-link,
-        .dark-mode .small,
-        .dark-mode label,
-        .dark-mode .copyright,
-        .dark-mode .modal-title,
-        .dark-mode .modal-body {
+        .dark-mode .text-gray-800, .dark-mode .text-gray-700,
+        .dark-mode .text-gray-600, .dark-mode .text-dark,
+        .dark-mode .card-header, .dark-mode .card-footer,
+        .dark-mode .dropdown-item, .dark-mode .navbar-light .navbar-nav .nav-link,
+        .dark-mode .small, .dark-mode label, .dark-mode .copyright,
+        .dark-mode .modal-title, .dark-mode .modal-body { color: #e5e7eb !important; }
+        .dark-mode .card-header h1,
+        .dark-mode .card-header h2,
+        .dark-mode .card-header h3,
+        .dark-mode .card-header h4,
+        .dark-mode .card-header h5,
+        .dark-mode .card-header h6,
+        .dark-mode .card-header .text-primary {
             color: #e5e7eb !important;
         }
-
-        .dark-mode .dropdown-item:hover,
-        .dark-mode .dropdown-item:focus,
-        .dark-mode .list-group-item:hover {
-            background-color: #111827 !important;
-        }
-
-        .dark-mode .form-control::placeholder,
-        .dark-mode .form-select::placeholder {
-            color: #9ca3af;
-        }
-
-        .dark-mode .btn-light,
-        .dark-mode .btn-outline-secondary,
+        .dark-mode .dropdown-item:hover, .dark-mode .dropdown-item:focus,
+        .dark-mode .list-group-item:hover { background-color: #111827 !important; }
+        .dark-mode .form-control::placeholder, .dark-mode .form-select::placeholder { color: #9ca3af; }
+        .dark-mode .btn-light, .dark-mode .btn-outline-secondary,
         .dark-mode .btn-secondary {
             background-color: #374151;
             border-color: #4b5563;
             color: #e5e7eb;
         }
-
         .dark-mode .navbar-search .form-control {
             background-color: #111827 !important;
             border-color: #374151 !important;
         }
+        .dark-mode .btn-primary, .dark-mode .badge-primary, .dark-mode .bg-primary {
+            background-color: {{ $cssAccent }} !important;
+            border-color: {{ $cssAccent }} !important;
+        }
+        .dark-mode .sidebar .nav-item.active .nav-link,
+        .dark-mode .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.08) !important;
+        }
 
+        /* ── Dark mode toggle button ── */
         .theme-toggle-btn {
             border: 1px solid #d1d5db;
             background: #ffffff;
@@ -161,71 +258,38 @@
             align-items: center;
             justify-content: center;
         }
-
         .dark-mode .theme-toggle-btn {
             background: #111827;
             border-color: #4b5563;
             color: #fbbf24;
         }
-
-        #accordionSidebar {
-            background: var(--tenant-sidebar-gradient) !important;
-        }
-
-        .btn-primary,
-        .badge-primary,
-        .bg-primary,
-        .sidebar .nav-link:hover,
-        .sidebar .nav-item.active .nav-link {
-            background-color: var(--tenant-primary) !important;
-            border-color: var(--tenant-primary-dark) !important;
-        }
-
-        .text-primary,
-        .sidebar .nav-link i,
-        .sidebar .sidebar-brand-text,
-        .sidebar .sidebar-brand-icon,
-        .navbar .text-primary,
-        .nav-link .fa,
-        .nav-link .fas {
-            color: var(--tenant-primary) !important;
-        }
-
-        .dark-mode .btn-primary,
-        .dark-mode .badge-primary,
-        .dark-mode .bg-primary {
-            background-color: var(--tenant-primary) !important;
-            border-color: var(--tenant-primary-dark) !important;
-        }
-
-        .dark-mode .sidebar .nav-item.active .nav-link,
-        .dark-mode .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.08) !important;
-        }
     </style>
+    @stack('styles')
 
 </head>
 
 <body id="page-top">
-    @php
-        $scheme = $tenantColorScheme ?? 'blue';
-    @endphp
-
-    <!-- Debug - Remove after testing -->
-    @if(isset($currentTenant))
-    <div style="display:none;">
-        Tenant: {{ json_encode($currentTenant) }}
-    </div>
-    @endif
+    <script>
+        try {
+            if (localStorage.getItem('acadclear-sidebar-toggled') === 'true') {
+                document.body.classList.add('sidebar-toggled');
+            }
+        } catch (e) {}
+    </script>
 
     <!-- Page Wrapper -->
-    <script>
-        document.documentElement.setAttribute('data-tenant-scheme', @json($scheme));
-    </script>
-    <div id="wrapper" data-tenant-scheme="{{ $scheme }}">
+    <div id="wrapper">
+
 
         <!-- Sidebar -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
+            <script>
+                try {
+                    if (localStorage.getItem('acadclear-sidebar-toggled') === 'true') {
+                        document.getElementById('accordionSidebar').classList.add('toggled');
+                    }
+                } catch (e) {}
+            </script>
 
             <!-- Sidebar - Brand -->
             @php
@@ -246,15 +310,17 @@
                     $tenantLogo = asset('storage/' . ltrim($tenantLogo, '/'));
                 }
             @endphp
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ $dashboardRoute }}">
-                <div class="sidebar-brand-icon d-flex align-items-center justify-content-center" style="width:2.25rem;height:2.25rem;overflow:hidden;">
+            <a class="sidebar-brand d-flex flex-column align-items-center justify-content-center py-4" style="height: auto; text-decoration: none;" href="{{ $dashboardRoute }}">
+                <div class="sidebar-brand-icon d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
                     @if($tenantLogo)
-                        <img src="{{ $tenantLogo }}" alt="{{ $currentTenant['name'] ?? config('app.name') }} logo" style="width:100%;height:100%;object-fit:contain;">
+                        <img src="{{ $tenantLogo }}" alt="{{ $currentTenant['name'] ?? config('app.name') }} logo" class="rounded-circle bg-white" style="width:100%;height:100%;object-fit:cover; padding:2px;">
                     @else
-                        <i class="fas fa-laugh-wink rotate-n-15"></i>
+                        <i class="fas fa-laugh-wink rotate-n-15" style="font-size: 2rem;"></i>
                     @endif
                 </div>
-                <div class="sidebar-brand-text mx-3">{{ $user->role === 'school_admin' ? 'ACAD CLEAR ADMIN' : 'ACAD CLEAR' }}</div>
+                <div class="sidebar-brand-text mt-2" style="font-size: 0.85rem; letter-spacing: 0.1rem;">
+                    {{ $user->role === 'school_admin' ? 'ADMIN' : 'ACAD CLEAR' }}
+                </div>
             </a>
 
             <!-- Divider -->
@@ -329,11 +395,7 @@
                             <span>Staff</span></a>
                     </li>
 
-                    <li class="nav-item {{ request()->routeIs('admin.staff.create') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('admin.staff.create') }}">
-                            <i class="fas fa-fw fa-user-plus"></i>
-                            <span>Add Role</span></a>
-                    </li>
+
                 @endif
 
                 <hr class="sidebar-divider">
@@ -360,14 +422,6 @@
                     </li>
                 @endif
 
-                <!-- Nav Item - Export -->
-                @if($canExportClearances)
-                    <li class="nav-item {{ request()->routeIs('admin.clearances.export') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('admin.clearances.export') }}">
-                            <i class="fas fa-fw fa-download"></i>
-                            <span>Export</span></a>
-                    </li>
-                @endif
 
                 <li class="nav-item {{ request()->routeIs('admin.update.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('admin.update.index') }}">
@@ -414,11 +468,6 @@
                 <!-- Divider -->
                 <hr class="sidebar-divider">
 
-                <!-- Heading -->
-                <div class="sidebar-heading">
-                    Management
-                </div>
-
                 @if($canViewPlanRequests)
                     <li class="nav-item {{ request()->routeIs('staff.plan-requests.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('staff.plan-requests.index') }}">
@@ -463,19 +512,10 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->routeIs('staff.staff.create') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('staff.staff.create') }}">
-                            <i class="fas fa-fw fa-user-plus"></i>
-                            <span>Add Role</span>
-                        </a>
-                    </li>
+
                 @endif
 
                 <hr class="sidebar-divider">
-
-                <div class="sidebar-heading">
-                    Operations
-                </div>
 
                 @if($canViewReports)
                     <li class="nav-item {{ request()->routeIs('staff.reports.*') ? 'active' : '' }}">
@@ -495,14 +535,6 @@
                     </li>
                 @endif
 
-                @if($canExportClearances)
-                    <li class="nav-item {{ request()->routeIs('staff.clearances.export') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('staff.clearances.export') }}">
-                            <i class="fas fa-fw fa-download"></i>
-                            <span>Export</span>
-                        </a>
-                    </li>
-                @endif
 
                 <hr class="sidebar-divider">
 
@@ -616,13 +648,73 @@
                         $topbarNotificationLink = '#';
                         $topbarMailLink = route('support.chat');
 
-                        $tenantSlugForSupport = (string) (request()->attributes->get('tenant_slug') ?? data_get($currentTenant ?? null, 'slug', ''));
-                        if ($tenantSlugForSupport !== '') {
-                            $supportSummary = app(\App\Services\TenantService::class)->getSupportChatSummary($tenantSlugForSupport);
-                            $topbarMailCount = (int) ($supportSummary['unread_count'] ?? 0);
-                            $topbarMails = collect($supportSummary['recent_messages'] ?? []);
+                        // ── Support Chat Unread Badge ─────────────────────────────────────────
+                        // Students / Staff: count unread LOCAL messages from the school admin only.
+                        // School Admin   : count unread LOCAL messages from students/staff.
+                        //                  (Central unread NOT shown in badge — admin uses the
+                        //                   Central Support tab inside the chat for that.)
+                        if ($user->hasPermission('tenant.support_chat.access')) {
+                            try {
+                            if ($user->role === 'school_admin') {
+                                // Unread messages sent to admin from students/staff
+                                $topbarMailCount = \App\Models\Message::where('receiver_id', $user->id)
+                                    ->where('is_read', false)
+                                    ->whereHas('sender', function ($q) {
+                                        $q->whereIn('role', ['student', 'staff']);
+                                    })
+                                    ->count();
+
+                                // Recent unread senders for the dropdown
+                                $topbarMails = \App\Models\Message::with('sender')
+                                    ->where('receiver_id', $user->id)
+                                    ->where('is_read', false)
+                                    ->whereHas('sender', function ($q) {
+                                        $q->whereIn('role', ['student', 'staff']);
+                                    })
+                                    ->latest()
+                                    ->take(5)
+                                    ->get()
+                                    ->map(function ($m) {
+                                        return [
+                                            'sender_name' => optional($m->sender)->name ?? 'User',
+                                            'message'     => $m->message,
+                                            'with_id'     => $m->sender_id,
+                                        ];
+                                    });
+
+                            } elseif (in_array($user->role, ['student', 'staff'])) {
+                                // Find school admin to check replies from them
+                                $schoolAdmin = \App\Models\User::where('role', 'school_admin')->first();
+
+                                if ($schoolAdmin) {
+                                    $topbarMailCount = \App\Models\Message::where('sender_id', $schoolAdmin->id)
+                                        ->where('receiver_id', $user->id)
+                                        ->where('is_read', false)
+                                        ->count();
+
+                                    if ($topbarMailCount > 0) {
+                                        $topbarMails = \App\Models\Message::with('sender')
+                                            ->where('sender_id', $schoolAdmin->id)
+                                            ->where('receiver_id', $user->id)
+                                            ->where('is_read', false)
+                                            ->latest()
+                                            ->take(5)
+                                            ->get()
+                                            ->map(function ($m) {
+                                                return [
+                                                    'sender_name' => optional($m->sender)->name ?? 'School Admin',
+                                                    'message'     => $m->message,
+                                                ];
+                                            });
+                                    }
+                                }
+                            }
+                            } catch (\Exception $e) {
+                                // local_messages table may not exist yet — badge stays at 0
+                            }
                         }
 
+                        // ── Clearance Notifications ───────────────────────────────────────────
                         if ($user->role === 'school_admin') {
                             $topbarNotificationLink = route('admin.clearances.index');
 
@@ -682,7 +774,6 @@
                                 ->latest()
                                 ->take(5)
                                 ->get();
-
                         }
                     @endphp
                     <ul class="navbar-nav ml-auto">
@@ -804,7 +895,8 @@
                             </div>
                         </li>
 
-                        <!-- Nav Item - Messages -->
+                        <!-- Nav Item - Messages (only for users with chat access) -->
+                        @if($user->hasPermission('tenant.support_chat.access'))
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -817,24 +909,36 @@
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="messagesDropdown">
                                 <h6 class="dropdown-header">
-                                    Support Inbox
+                                    @if($user->role === 'school_admin')
+                                        Unread from Students &amp; Staff
+                                    @else
+                                        School Admin Replies
+                                    @endif
                                 </h6>
                                 @forelse($topbarMails as $mailItem)
-                                    <a class="dropdown-item d-flex align-items-center" href="{{ $topbarMailLink }}">
+                                    @php
+                                        // Admin: link directly into the sender's thread
+                                        $mailItemLink = $topbarMailLink;
+                                        if ($user->role === 'school_admin' && !empty($mailItem['with_id'])) {
+                                            $mailItemLink = route('support.chat') . '?with=' . $mailItem['with_id'];
+                                        }
+                                    @endphp
+                                    <a class="dropdown-item d-flex align-items-center" href="{{ $mailItemLink }}">
                                         <div class="dropdown-list-image mr-3">
                                             <i class="fas fa-envelope fa-lg text-primary"></i>
                                         </div>
                                         <div class="font-weight-bold">
-                                            <div class="text-truncate">{{ \Illuminate\Support\Str::limit(data_get($mailItem, 'sender_name', 'Super Admin'), 45) }}</div>
+                                            <div class="text-truncate">{{ \Illuminate\Support\Str::limit(data_get($mailItem, 'sender_name', 'School Admin'), 45) }}</div>
                                             <div class="small text-gray-500">{{ \Illuminate\Support\Str::limit(data_get($mailItem, 'message', 'Support message'), 60) }}</div>
                                         </div>
                                     </a>
                                 @empty
-                                    <span class="dropdown-item text-center small text-gray-500">No support messages right now</span>
+                                    <span class="dropdown-item text-center small text-gray-500">No unread messages right now</span>
                                 @endforelse
                                 <a class="dropdown-item text-center small text-gray-500" href="{{ $topbarMailLink }}">Open support chat</a>
                             </div>
                         </li>
+                        @endif
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 
@@ -955,6 +1059,22 @@
                     setIcon();
                 });
             }
+
+            // Sidebar persistence
+            var sidebarBtn = document.getElementById('sidebarToggle');
+            var topbarBtn = document.getElementById('sidebarToggleTop');
+            
+            function saveSidebarState() {
+                setTimeout(function() {
+                    var isToggled = document.body.classList.contains('sidebar-toggled');
+                    try {
+                        localStorage.setItem('acadclear-sidebar-toggled', isToggled ? 'true' : 'false');
+                    } catch (e) {}
+                }, 50);
+            }
+
+            if (sidebarBtn) sidebarBtn.addEventListener('click', saveSidebarState);
+            if (topbarBtn) topbarBtn.addEventListener('click', saveSidebarState);
         })();
     </script>
 
