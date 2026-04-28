@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## v1.0.16 - 2026-04-28
+
+### Release-based app updater
+- Reworked the tenant admin update flow to install from the GitHub release archive instead of relying on `git fetch` from the web server.
+- Added archive download, extraction, selective file copy, and post-install dependency/build/migration steps to the admin updater.
+- Improved update logs so download, extract, copy, and install failures are shown clearly on the update page.
+
 ## v1.0.11 - 2026-04-28
 
 ### Admin auto-update
