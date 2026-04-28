@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## v1.0.11 - 2026-04-28
+
+### Admin auto-update
+- Connected the tenant admin update install action to the existing `scripts/apply-latest-update.ps1` workflow.
+- The update button can now pull the latest GitHub code, install dependencies, rebuild assets, and run Laravel update tasks from the admin page.
+- Added configurable update branch and install timeout settings for the automated install flow.
+
 ## v1.0.10 - 2026-04-28
 
 ### Central app hotfix

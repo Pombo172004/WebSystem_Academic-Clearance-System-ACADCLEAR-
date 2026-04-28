@@ -77,12 +77,12 @@
     <h1 class="h3 mb-0 text-gray-800">Reports & Analytics</h1>
     <div>
         @if($canExportReports)
-            <button type="button" class="btn btn-export-pdf" data-bs-toggle="modal" data-bs-target="#exportPdfModal">
+            <a href="{{ route('admin.reports.export.pdf', ['college_id' => $selectedCollege, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}" class="btn btn-export-pdf">
                 <i class="fas fa-file-pdf"></i> Export PDF
-            </button>
-            <button type="button" class="btn btn-export-csv" data-bs-toggle="modal" data-bs-target="#exportCsvModal">
+            </a>
+            <a href="{{ route('admin.reports.export.csv', ['college_id' => $selectedCollege, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}" class="btn btn-export-csv">
                 <i class="fas fa-file-csv"></i> Export CSV
-            </button>
+            </a>
         @endif
     </div>
 </div>
@@ -296,62 +296,6 @@
         </div>
     </div>
 </div>
-
-<!-- Export PDF Modal -->
-@if($canExportReports)
-<div class="modal fade" id="exportPdfModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Export PDF Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>You are about to export reports as a PDF based on your current filters.</p>
-                <ul class="list-group list-group-flush mb-3">
-                    <li class="list-group-item"><strong>College:</strong> {{ request('college_id') ? ($colleges->where('id', request('college_id'))->first()->name ?? 'Selected College') : 'All Colleges' }}</li>
-                    <li class="list-group-item"><strong>Date From:</strong> {{ request('date_from') ?: 'Beginning' }}</li>
-                    <li class="list-group-item"><strong>Date To:</strong> {{ request('date_to') ?: 'Today' }}</li>
-                </ul>
-                <p class="mb-0">Do you want to proceed with the export?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="{{ route('admin.reports.export.pdf', request()->all()) }}" class="btn btn-export-pdf" onclick="document.getElementById('exportPdfModal').querySelector('.btn-close').click();">
-                    <i class="fas fa-file-pdf"></i> Confirm Export PDF
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Export CSV Modal -->
-<div class="modal fade" id="exportCsvModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Export CSV Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>You are about to export reports as a CSV based on your current filters.</p>
-                <ul class="list-group list-group-flush mb-3">
-                    <li class="list-group-item"><strong>College:</strong> {{ request('college_id') ? ($colleges->where('id', request('college_id'))->first()->name ?? 'Selected College') : 'All Colleges' }}</li>
-                    <li class="list-group-item"><strong>Date From:</strong> {{ request('date_from') ?: 'Beginning' }}</li>
-                    <li class="list-group-item"><strong>Date To:</strong> {{ request('date_to') ?: 'Today' }}</li>
-                </ul>
-                <p class="mb-0">Do you want to proceed with the export?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="{{ route('admin.reports.export.csv', request()->all()) }}" class="btn btn-export-csv" onclick="document.getElementById('exportCsvModal').querySelector('.btn-close').click();">
-                    <i class="fas fa-file-csv"></i> Confirm Export CSV
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

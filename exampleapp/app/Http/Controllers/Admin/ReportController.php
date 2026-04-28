@@ -78,46 +78,52 @@ class ReportController extends Controller
         $tenantName = $this->resolveTenantName();
 
         $filename = 'clearance-report-' . now()->format('Y-m-d') . '.csv';
-        $handle = fopen('php://output', 'w');
-
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-
-        fputcsv($handle, ['Institution:', $tenantName]);
-        fputcsv($handle, ['Report Generated:', now()->format('F d, Y H:i:s')]);
-        fputcsv($handle, ['Date Range:', $dateFrom, 'to', $dateTo]);
-        if ($selectedCollege) {
-            $college = College::find($selectedCollege);
-            fputcsv($handle, ['College:', $college?->name ?? 'Unknown College']);
-        }
-        fputcsv($handle, []);
-
         $stats = $this->getStatistics($selectedCollege, $dateFrom, $dateTo);
-        fputcsv($handle, ['OVERALL STATISTICS']);
-        fputcsv($handle, ['Total Clearances', $stats['total_clearances']]);
-        fputcsv($handle, ['Approved', $stats['approved']]);
-        fputcsv($handle, ['Pending', $stats['pending']]);
-        fputcsv($handle, ['Rejected', $stats['rejected']]);
-        fputcsv($handle, ['Completion Rate', $stats['completion_rate'] . '%']);
-        fputcsv($handle, []);
-
         $departmentPerformance = $this->getDepartmentPerformance($selectedCollege, $dateFrom, $dateTo);
-        fputcsv($handle, ['DEPARTMENT PERFORMANCE']);
-        fputcsv($handle, ['Department', 'Total', 'Approved', 'Pending', 'Rejected', 'Rate']);
+        $college = $selectedCollege ? College::find($selectedCollege) : null;
 
-        foreach ($departmentPerformance as $dept) {
-            fputcsv($handle, [
-                $dept['name'],
-                $dept['total'],
-                $dept['approved'],
-                $dept['pending'],
-                $dept['rejected'],
-                $dept['rate'] . '%',
-            ]);
-        }
+        return response()->streamDownload(function () use ($tenantName, $dateFrom, $dateTo, $selectedCollege, $college, $stats, $departmentPerformance) {
+            $handle = fopen('php://output', 'w');
 
-        fclose($handle);
-        exit;
+            fputcsv($handle, ['Institution:', $tenantName]);
+            fputcsv($handle, ['Report Generated:', now()->format('F d, Y H:i:s')]);
+            fputcsv($handle, ['Date Range:', $dateFrom, 'to', $dateTo]);
+            if ($selectedCollege) {
+                fputcsv($handle, ['College:', $college?->name ?? 'Unknown College']);
+            } else {
+                fputcsv($handle, ['College:', 'All Colleges']);
+            }
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['OVERALL STATISTICS']);
+            fputcsv($handle, ['Total Clearances', $stats['total_clearances']]);
+            fputcsv($handle, ['Students Served', $stats['students_served']]);
+            fputcsv($handle, ['Approved', $stats['approved']]);
+            fputcsv($handle, ['Pending', $stats['pending']]);
+            fputcsv($handle, ['Rejected', $stats['rejected']]);
+            fputcsv($handle, ['Completion Rate', $stats['completion_rate'] . '%']);
+            fputcsv($handle, []);
+
+            fputcsv($handle, ['DEPARTMENT PERFORMANCE']);
+            fputcsv($handle, ['College', 'Department', 'Total', 'Approved', 'Pending', 'Rejected', 'Rate', 'Avg Response Time']);
+
+            foreach ($departmentPerformance as $dept) {
+                fputcsv($handle, [
+                    $dept['college'],
+                    $dept['name'],
+                    $dept['total'],
+                    $dept['approved'],
+                    $dept['pending'],
+                    $dept['rejected'],
+                    $dept['rate'] . '%',
+                    $dept['avg_response_time'],
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     /**

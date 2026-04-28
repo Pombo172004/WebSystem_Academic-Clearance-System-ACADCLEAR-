@@ -31,16 +31,11 @@ What this does:
 1. Login as `school_admin`.
 2. Open **Update** page in the app (`/admin/update`).
 3. If GitHub has newer tag (like `v1.0.3`), app shows **New version available**.
-4. To apply code update safely on this laptop, run:
-
-```powershell
-cd .\scripts
-.\apply-latest-update.ps1 -Branch master
-```
-
-5. Refresh app and confirm footer/version matches latest `VERSION`.
+4. Click **Pull and Install Update** on the app update page.
+5. The app will run `scripts/apply-latest-update.ps1` for this machine.
+6. Refresh app and confirm footer/version matches latest `VERSION`.
 
 ## Notes
-- The Update page button runs migration/cache steps. It does **not** perform `git pull` by itself.
-- Use `apply-latest-update.ps1` for actual code update on each laptop/server.
+- The Update page button now runs `apply-latest-update.ps1`, which performs `git fetch`, `git pull`, dependency install, asset build, migrations, and cache clearing.
+- You can still run `apply-latest-update.ps1` manually on each laptop/server if preferred.
 - Keep branch name consistent (`master` in current repo).

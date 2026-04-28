@@ -37,7 +37,7 @@
         @endif
 
         <p class="mb-2 text-gray-700">
-            Use this button after the programmer deploys a new version. It applies tenant-side update steps safely.
+            When a new GitHub release is available, this button will pull the latest code, install dependencies, rebuild assets, and run the app update steps on this machine.
         </p>
         <p class="mb-4"><strong>Current Version:</strong> {{ $currentVersion }}</p>
         <p class="mb-4"><strong>Latest Version:</strong> {{ $latestVersion ?? 'Unavailable' }}</p>
@@ -56,7 +56,7 @@
                 </button>
             @else
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-download mr-1"></i> Install New Version
+                    <i class="fas fa-download mr-1"></i> Pull and Install Update
                 </button>
             @endif
         </form>

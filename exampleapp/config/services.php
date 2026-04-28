@@ -49,6 +49,8 @@ return [
         'github_token' => env('APP_GITHUB_TOKEN', ''),
         'cache_minutes' => env('APP_UPDATE_CACHE_MINUTES', 15),
         'verify_ssl' => env('APP_UPDATE_VERIFY_SSL', true),
+        'branch' => env('APP_UPDATE_BRANCH', 'master'),
+        'install_timeout_seconds' => env('APP_UPDATE_INSTALL_TIMEOUT_SECONDS', 1800),
     ],
 
 ];
